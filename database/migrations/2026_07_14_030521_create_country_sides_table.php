@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('country_sides', function (Blueprint $table) {
+        Schema::create('country_sides', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
 
             $table->decimal('center_lat', 10, 7)->nullable();
             $table->decimal('center_lng', 10, 7)->nullable();
@@ -22,7 +21,9 @@ return new class extends Migration
 
             $table->decimal('position_top', 5, 2)->nullable();
             $table->decimal('position_left', 5, 2)->nullable();
+
             $table->timestamps();
+            $table->index('name');
         });
     }
 
