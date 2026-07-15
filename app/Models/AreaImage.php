@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AreaImage extends Model
 {
-
     protected $fillable = [
         'area_id',
         'image_path',
@@ -16,7 +15,6 @@ class AreaImage extends Model
     ];
 
     protected $casts = [
-        'area_id' => 'integer',
         'sort_order' => 'integer',
     ];
 
@@ -33,13 +31,6 @@ class AreaImage extends Model
     {
         if (!$this->image_path) {
             return null;
-        }
-
-        if (
-            str_starts_with($this->image_path, 'http://') ||
-            str_starts_with($this->image_path, 'https://')
-        ) {
-            return $this->image_path;
         }
 
         return Storage::disk('public')->url($this->image_path);

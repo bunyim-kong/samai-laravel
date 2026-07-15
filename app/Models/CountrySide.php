@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -32,32 +31,8 @@ class CountrySide extends Model
             ->orderBy('title');
     }
 
-    public function activeAreas(): HasMany
-    {
-        return $this->hasMany(Area::class)
-            ->where('is_active', true)
-            ->orderBy('title');
-    }
-
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function scopeSearch(
-        Builder $query,
-        ?string $search
-    ): Builder {
-        $search = trim((string) $search);
-
-        if ($search === '') {
-            return $query;
-        }
-
-        return $query->where(function (Builder $builder) use ($search): void {
-            $builder
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$search}%");
-        });
     }
 }

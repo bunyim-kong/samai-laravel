@@ -12,11 +12,9 @@ class Area extends Model
 {
     protected $fillable = [
         'country_side_id',
-        'title',
-        'slug',
         'lat',
         'lng',
-        'google_map_url',
+        'title',
         'image',
         'address',
         'open_hours',
@@ -26,14 +24,12 @@ class Area extends Model
         'email',
         'facebook',
         'instagram',
-        'is_active',
     ];
 
     protected $casts = [
         'country_side_id' => 'integer',
         'lat' => 'decimal:7',
         'lng' => 'decimal:7',
-        'is_active' => 'boolean',
     ];
 
     protected $appends = [
@@ -53,22 +49,15 @@ class Area extends Model
             ->orderBy('id');
     }
 
-    public function scopeActive(Builder $query): Builder
+    public function scopeSearch(Builder $query, ?string $search): Builder
     {
-        return $query->where('is_active', true);
-    }
-
-    public function scopeSearch(
-        Builder $query,
-        ?string $search
-    ): Builder {
         $search = trim((string) $search);
 
         if ($search === '') {
             return $query;
         }
 
-        return $query->where(function (Builder $builder) use ($search): void {
+        return $query->where(function (Builder $builder) use ($search) {
             $builder
                 ->where('title', 'like', "%{$search}%")
                 ->orWhere('address', 'like', "%{$search}%")
@@ -77,22 +66,10 @@ class Area extends Model
         });
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
     public function getImageUrlAttribute(): ?string
     {
         if (!$this->image) {
             return null;
-        }
-
-        if (
-            str_starts_with($this->image, 'http://') ||
-            str_starts_with($this->image, 'https://')
-        ) {
-            return $this->image;
         }
 
         return Storage::disk('public')->url($this->image);
@@ -100,18 +77,13 @@ class Area extends Model
 
     public function getMapsUrlAttribute(): ?string
     {
-        if ($this->google_map_url) {
-            return $this->google_map_url;
-        }
-
         if ($this->lat === null || $this->lng === null) {
             return null;
         }
 
-        return sprintf(
-            'https://www.google.com/maps/search/?api=1&query=%s,%s',
-            $this->lat,
-            $this->lng
-        );
+        return 'https://www.google.com/maps/search/?api=1&query='
+            . $this->lat
+            . ','
+            . $this->lng;
     }
 }
