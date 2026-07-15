@@ -51,13 +51,13 @@
         .map-card {
             position: relative;
             overflow: hidden;
-            background: white;
+            background: #ffffff;
         }
 
         .leaflet-popup-content-wrapper,
         .leaflet-popup-tip {
             background: var(--brand-brown);
-            color: white;
+            color: #ffffff;
         }
 
         .leaflet-popup-content {
@@ -76,7 +76,7 @@
 
         .leaflet-bar a {
             background: var(--brand-brown) !important;
-            color: white !important;
+            color: #ffffff !important;
             border: none !important;
             width: 44px !important;
             height: 44px !important;
@@ -95,7 +95,7 @@
             background: var(--brand-brown);
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
-            border: 2px solid white;
+            border: 2px solid #ffffff;
             box-shadow: -2px 2px 6px rgba(0, 0, 0, .35);
         }
 
@@ -137,12 +137,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: white;
+            background: #ffffff;
             border-radius: 16px;
             padding: 11px 14px;
             box-shadow:
                 0 8px 24px rgba(0, 0, 0, .18),
                 0 2px 6px rgba(0, 0, 0, .08);
+            border: 1px solid rgba(157, 122, 84, .15);
         }
 
         .venue-search-box svg {
@@ -156,10 +157,14 @@
             border: none;
             outline: none;
             background: transparent;
-            font: inherit;
+            font-family: 'Montserrat', sans-serif;
             font-size: 13.5px;
             font-weight: 500;
             color: #2d241c;
+        }
+
+        .venue-search-box input::placeholder {
+            color: #a89b8c;
         }
 
         .venue-search-clear {
@@ -173,6 +178,7 @@
             cursor: pointer;
             background: #efe9e2;
             color: #7a6e5f;
+            padding: 0;
         }
 
         .venue-search-clear.is-visible {
@@ -184,9 +190,10 @@
             margin-top: 8px;
             max-height: 240px;
             overflow-y: auto;
-            background: white;
+            background: #ffffff;
             border-radius: 14px;
             box-shadow: 0 10px 28px rgba(0, 0, 0, .2);
+            border: 1px solid rgba(157, 122, 84, .12);
         }
 
         .venue-search-results.is-visible {
@@ -200,6 +207,11 @@
             font-weight: 500;
             color: #2d241c;
             border-bottom: 1px solid #f2ede6;
+            transition: background .15s ease;
+        }
+
+        .venue-search-result:last-child {
+            border-bottom: none;
         }
 
         .venue-search-result:hover,
@@ -225,343 +237,375 @@
     </style>
 </head>
 <body>
-    <div class="map-wrapper">
-        <div class="map-card">
-            <div class="venue-search-wrap">
-                <div class="venue-search-box">
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.5"
-                    >
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <line
-                            x1="21"
-                            y1="21"
-                            x2="16.65"
-                            y2="16.65"
-                        ></line>
-                    </svg>
 
-                    <input
-                        type="text"
-                        id="venueSearchInput"
-                        placeholder="Search a venue..."
-                        autocomplete="off"
-                    >
+@php
+    $markers = $countrySide->areas
+        ->filter(function ($area) {
+            return $area->lat !== null && $area->lng !== null;
+        })
+        ->map(function ($area) {
+            return [
+                'id' => $area->id,
+                'title' => $area->title,
+                'lat' => (float) $area->lat,
+                'lng' => (float) $area->lng,
+            ];
+        })
+        ->values()
+        ->all();
 
-                    <button
-                        type="button"
-                        id="venueSearchClear"
-                        class="venue-search-clear"
-                        aria-label="Clear search"
-                    >
-                        ✕
-                    </button>
-                </div>
+    $mapCenter = [
+        (float) ($countrySide->center_lat ?? 11.5564),
+        (float) ($countrySide->center_lng ?? 104.9282),
+    ];
 
-                <div
-                    id="venueSearchResults"
-                    class="venue-search-results"
-                ></div>
+    $mapZoom = (int) ($countrySide->zoom ?? 10);
+@endphp
+
+<div class="map-wrapper">
+    <div class="map-card">
+
+        <div class="venue-search-wrap">
+            <div class="venue-search-box">
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                >
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line
+                        x1="21"
+                        y1="21"
+                        x2="16.65"
+                        y2="16.65"
+                    ></line>
+                </svg>
+
+                <input
+                    type="text"
+                    id="venueSearchInput"
+                    placeholder="Search a venue..."
+                    autocomplete="off"
+                >
+
+                <button
+                    type="button"
+                    id="venueSearchClear"
+                    class="venue-search-clear"
+                    aria-label="Clear search"
+                >
+                    ✕
+                </button>
             </div>
 
-            <div id="map"></div>
+            <div
+                id="venueSearchResults"
+                class="venue-search-results"
+            ></div>
         </div>
+
+        <div id="map"></div>
     </div>
+</div>
 
-    <script>
-        const mapData = {
-            center: [
-                {{ (float) ($countrySide->center_lat ?? 11.5564) }},
-                {{ (float) ($countrySide->center_lng ?? 104.9282) }}
-            ],
+<script>
+    const mapData = {
+        center: @json($mapCenter),
+        zoom: @json($mapZoom),
+        markers: @json($markers)
+    };
 
-            zoom: {{ (int) ($countrySide->zoom ?? 10) }},
+    const map = L.map('map', {
+        zoomControl: false,
+        attributionControl: false
+    }).setView(mapData.center, mapData.zoom);
 
-            markers: @json(
-                $countrySide->areas
-                    ->filter(fn ($area) => $area->lat !== null && $area->lng !== null)
-                    ->map(fn ($area) => [
-                        'id' => $area->id,
-                        'title' => $area->title,
-                        'lat' => (float) $area->lat,
-                        'lng' => (float) $area->lng,
-                    ])
-                    ->values()
-            )
-        };
+    L.control.zoom({
+        position: 'bottomleft'
+    }).addTo(map);
 
-        const map = L.map('map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView(mapData.center, mapData.zoom);
+    L.tileLayer(
+        'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+        {
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            maxZoom: 20
+        }
+    ).addTo(map);
 
-        L.control.zoom({
-            position: 'bottomleft'
-        }).addTo(map);
+    const markerIcon = L.divIcon({
+        className: 'custom-pin',
+        html: '<div class="pin-marker"></div>',
+        iconSize: [34, 34],
+        iconAnchor: [17, 34],
+        popupAnchor: [0, -26]
+    });
 
-        L.tileLayer(
-            'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    const labelZoom = 13;
+    const markerItems = [];
+    const bounds = [];
+
+    mapData.markers.forEach(function (item) {
+        const marker = L.marker(
+            [item.lat, item.lng],
             {
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                maxZoom: 20
+                icon: markerIcon
             }
         ).addTo(map);
 
-        const markerIcon = L.divIcon({
-            className: 'custom-pin',
-            html: '<div class="pin-marker"></div>',
-            iconSize: [34, 34],
-            iconAnchor: [17, 34],
-            popupAnchor: [0, -26]
+        marker.bindTooltip(item.title, {
+            permanent: true,
+            direction: 'right',
+            offset: [14, -15],
+            className: 'venue-label-tooltip'
         });
 
-        const labelZoom = 13;
-        const markerItems = [];
-        const bounds = [];
-
-        mapData.markers.forEach(item => {
-            const marker = L.marker(
-                [item.lat, item.lng],
-                { icon: markerIcon }
-            ).addTo(map);
-
-            marker.bindTooltip(item.title, {
-                permanent: true,
-                direction: 'right',
-                offset: [14, -15],
-                className: 'venue-label-tooltip'
-            });
-
-            marker.on('click', function () {
-                window.parent.postMessage({
-                    type: 'show_card',
-                    area_id: item.id
-                }, '*');
-            });
-
-            markerItems.push({
-                ...item,
-                marker
-            });
-
-            bounds.push([item.lat, item.lng]);
+        marker.on('click', function () {
+            window.parent.postMessage({
+                type: 'show_card',
+                area_id: item.id
+            }, '*');
         });
 
-        function updateLabels() {
-            const visible = map.getZoom() >= labelZoom;
-
-            markerItems.forEach(item => {
-                const tooltip = item.marker.getTooltip();
-
-                if (!tooltip) {
-                    return;
-                }
-
-                const element = tooltip.getElement();
-
-                if (element) {
-                    element.classList.toggle(
-                        'is-visible',
-                        visible
-                    );
-                }
-            });
-        }
-
-        if (bounds.length > 1) {
-            map.fitBounds(bounds, {
-                padding: [70, 70]
-            });
-        }
-
-        if (bounds.length === 1) {
-            map.setView(bounds[0], mapData.zoom);
-        }
-
-        map.on('zoomend', updateLabels);
-
-        map.whenReady(() => {
-            setTimeout(updateLabels, 50);
+        markerItems.push({
+            id: item.id,
+            title: item.title,
+            lat: item.lat,
+            lng: item.lng,
+            marker: marker
         });
 
-        const searchInput = document.getElementById(
-            'venueSearchInput'
-        );
+        bounds.push([
+            item.lat,
+            item.lng
+        ]);
+    });
 
-        const clearButton = document.getElementById(
-            'venueSearchClear'
-        );
+    function updateLabels() {
+        const visible = map.getZoom() >= labelZoom;
 
-        const resultsBox = document.getElementById(
-            'venueSearchResults'
-        );
+        markerItems.forEach(function (item) {
+            const tooltip = item.marker.getTooltip();
 
-        let currentMatches = [];
-        let activeIndex = -1;
-
-        function escapeHtml(value) {
-            return String(value)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
-        }
-
-        function renderResults(matches, query) {
-            currentMatches = matches;
-            activeIndex = -1;
-
-            if (!query) {
-                resultsBox.innerHTML = '';
-                resultsBox.classList.remove('is-visible');
+            if (!tooltip) {
                 return;
             }
 
-            if (matches.length === 0) {
-                resultsBox.innerHTML = `
-                    <div class="venue-search-empty">
-                        No venues found
-                    </div>
-                `;
+            const element = tooltip.getElement();
 
-                resultsBox.classList.add('is-visible');
-                return;
+            if (element) {
+                element.classList.toggle(
+                    'is-visible',
+                    visible
+                );
             }
+        });
+    }
 
-            resultsBox.innerHTML = matches.map((item, index) => `
+    if (bounds.length > 1) {
+        map.fitBounds(bounds, {
+            padding: [70, 70]
+        });
+    } else if (bounds.length === 1) {
+        map.setView(
+            bounds[0],
+            mapData.zoom
+        );
+    }
+
+    map.on('zoomend', updateLabels);
+
+    map.whenReady(function () {
+        setTimeout(updateLabels, 50);
+    });
+
+    const searchInput = document.getElementById(
+        'venueSearchInput'
+    );
+
+    const clearButton = document.getElementById(
+        'venueSearchClear'
+    );
+
+    const resultsBox = document.getElementById(
+        'venueSearchResults'
+    );
+
+    let currentMatches = [];
+    let activeIndex = -1;
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function renderResults(matches, query) {
+        currentMatches = matches;
+        activeIndex = -1;
+
+        if (!query) {
+            resultsBox.innerHTML = '';
+            resultsBox.classList.remove('is-visible');
+            return;
+        }
+
+        if (matches.length === 0) {
+            resultsBox.innerHTML = `
+                <div class="venue-search-empty">
+                    No venues found
+                </div>
+            `;
+
+            resultsBox.classList.add('is-visible');
+            return;
+        }
+
+        resultsBox.innerHTML = matches.map(function (item, index) {
+            return `
                 <div
                     class="venue-search-result"
                     data-index="${index}"
                 >
                     ${escapeHtml(item.title)}
                 </div>
-            `).join('');
+            `;
+        }).join('');
 
-            resultsBox.classList.add('is-visible');
+        resultsBox.classList.add('is-visible');
 
-            resultsBox
-                .querySelectorAll('.venue-search-result')
-                .forEach(element => {
-                    element.addEventListener('click', function () {
-                        selectResult(
-                            Number(this.dataset.index)
-                        );
-                    });
+        resultsBox
+            .querySelectorAll('.venue-search-result')
+            .forEach(function (element) {
+                element.addEventListener('click', function () {
+                    selectResult(
+                        Number(this.dataset.index)
+                    );
                 });
+            });
+    }
+
+    function selectResult(index) {
+        const item = currentMatches[index];
+
+        if (!item) {
+            return;
         }
 
-        function selectResult(index) {
-            const item = currentMatches[index];
-
-            if (!item) {
-                return;
+        map.setView(
+            [item.lat, item.lng],
+            Math.max(map.getZoom(), labelZoom + 1),
+            {
+                animate: true
             }
+        );
 
-            map.setView(
-                [item.lat, item.lng],
-                Math.max(map.getZoom(), labelZoom + 1),
-                { animate: true }
-            );
+        item.marker.openTooltip();
 
-            item.marker.openTooltip();
+        searchInput.value = item.title;
+        clearButton.classList.add('is-visible');
+        resultsBox.classList.remove('is-visible');
 
-            searchInput.value = item.title;
-            clearButton.classList.add('is-visible');
-            resultsBox.classList.remove('is-visible');
+        window.parent.postMessage({
+            type: 'show_card',
+            area_id: item.id
+        }, '*');
+    }
 
-            window.parent.postMessage({
-                type: 'show_card',
-                area_id: item.id
-            }, '*');
+    searchInput.addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+
+        clearButton.classList.toggle(
+            'is-visible',
+            this.value.length > 0
+        );
+
+        if (!query) {
+            renderResults([], '');
+            return;
         }
 
-        searchInput.addEventListener('input', function () {
-            const query = this.value.trim().toLowerCase();
-
-            clearButton.classList.toggle(
-                'is-visible',
-                this.value.length > 0
-            );
-
-            const matches = markerItems.filter(item => {
-                return item.title.toLowerCase().includes(query);
-            });
-
-            renderResults(matches, query);
+        const matches = markerItems.filter(function (item) {
+            return item.title
+                .toLowerCase()
+                .includes(query);
         });
 
-        searchInput.addEventListener('keydown', function (event) {
-            const resultElements = resultsBox.querySelectorAll(
-                '.venue-search-result'
-            );
+        renderResults(matches, query);
+    });
 
-            if (event.key === 'Escape') {
-                resultsBox.classList.remove('is-visible');
-                return;
-            }
+    searchInput.addEventListener('keydown', function (event) {
+        const resultElements = resultsBox.querySelectorAll(
+            '.venue-search-result'
+        );
 
-            if (!resultElements.length) {
-                return;
-            }
-
-            if (event.key === 'ArrowDown') {
-                event.preventDefault();
-
-                activeIndex = Math.min(
-                    activeIndex + 1,
-                    resultElements.length - 1
-                );
-            }
-
-            if (event.key === 'ArrowUp') {
-                event.preventDefault();
-
-                activeIndex = Math.max(activeIndex - 1, 0);
-            }
-
-            if (event.key === 'Enter') {
-                event.preventDefault();
-
-                selectResult(
-                    activeIndex >= 0 ? activeIndex : 0
-                );
-
-                return;
-            }
-
-            resultElements.forEach((element, index) => {
-                element.classList.toggle(
-                    'is-active',
-                    index === activeIndex
-                );
-            });
-
-            if (activeIndex >= 0) {
-                resultElements[activeIndex].scrollIntoView({
-                    block: 'nearest'
-                });
-            }
-        });
-
-        clearButton.addEventListener('click', function () {
-            searchInput.value = '';
-            clearButton.classList.remove('is-visible');
+        if (event.key === 'Escape') {
             resultsBox.classList.remove('is-visible');
-            resultsBox.innerHTML = '';
-            searchInput.focus();
+            searchInput.blur();
+            return;
+        }
+
+        if (!resultElements.length) {
+            return;
+        }
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+
+            activeIndex = Math.min(
+                activeIndex + 1,
+                resultElements.length - 1
+            );
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+
+            activeIndex = Math.max(
+                activeIndex - 1,
+                0
+            );
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+
+            selectResult(
+                activeIndex >= 0 ? activeIndex : 0
+            );
+
+            return;
+        }
+
+        resultElements.forEach(function (element, index) {
+            element.classList.toggle(
+                'is-active',
+                index === activeIndex
+            );
         });
 
-        document.addEventListener('click', function (event) {
-            if (!event.target.closest('.venue-search-wrap')) {
-                resultsBox.classList.remove('is-visible');
-            }
-        });
-    </script>
+        if (activeIndex >= 0) {
+            resultElements[activeIndex].scrollIntoView({
+                block: 'nearest'
+            });
+        }
+    });
+
+    clearButton.addEventListener('click', function () {
+        searchInput.value = '';
+        clearButton.classList.remove('is-visible');
+        resultsBox.classList.remove('is-visible');
+        resultsBox.innerHTML = '';
+        searchInput.focus();
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.venue-search-wrap')) {
+            resultsBox.classList.remove('is-visible');
+        }
+    });
+</script>
+
 </body>
 </html>
