@@ -12,9 +12,11 @@ class Area extends Model
 {
     protected $fillable = [
         'country_side_id',
+        'title',
+        'slug',
         'lat',
         'lng',
-        'title',
+        'google_map_url',
         'image',
         'address',
         'open_hours',
@@ -24,12 +26,14 @@ class Area extends Model
         'email',
         'facebook',
         'instagram',
+        'is_active',
     ];
 
     protected $casts = [
         'country_side_id' => 'integer',
         'lat' => 'decimal:7',
         'lng' => 'decimal:7',
+        'is_active' => 'boolean',
     ];
 
     protected $appends = [
@@ -49,8 +53,15 @@ class Area extends Model
             ->orderBy('id');
     }
 
-    public function scopeSearch(Builder $query, ?string $search): Builder
+    public function scopeActive(Builder $query): Builder
     {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeSearch(
+        Builder $query,
+        ?string $search
+    ): Builder {
         $search = trim((string) $search);
 
         if ($search === '') {
@@ -60,6 +71,7 @@ class Area extends Model
         return $query->where(function (Builder $builder) use ($search) {
             $builder
                 ->where('title', 'like', "%{$search}%")
+                ->orWhere('slug', 'like', "%{$search}%")
                 ->orWhere('address', 'like', "%{$search}%")
                 ->orWhere('description', 'like', "%{$search}%")
                 ->orWhere('serves', 'like', "%{$search}%");
@@ -68,6 +80,14 @@ class Area extends Model
 
     public function getImageUrlAttribute(): ?string
     {
+        $firstImage = $this->relationLoaded('images')
+            ? $this->images->first()
+            : $this->images()->first();
+
+        if ($firstImage) {
+            return $firstImage->image_url;
+        }
+
         if (!$this->image) {
             return null;
         }
@@ -77,6 +97,10 @@ class Area extends Model
 
     public function getMapsUrlAttribute(): ?string
     {
+        if ($this->google_map_url) {
+            return $this->google_map_url;
+        }
+
         if ($this->lat === null || $this->lng === null) {
             return null;
         }

@@ -15,7 +15,10 @@ class AreaController extends Controller
             'images',
         ]);
 
-        return view('components.venue-card', compact('area'));
+        return view(
+            'components.venue-card',
+            compact('area')
+        );
     }
 
     public function data(Area $area): JsonResponse
@@ -35,29 +38,35 @@ class AreaController extends Controller
                 'slug' => $area->countrySide->slug,
             ],
 
-            'lat' => (float) $area->lat,
-            'lng' => (float) $area->lng,
+            'lat' => $area->lat !== null
+                ? (float) $area->lat
+                : null,
+
+            'lng' => $area->lng !== null
+                ? (float) $area->lng
+                : null,
 
             'address' => $area->address,
             'open_hours' => $area->open_hours,
             'description' => $area->description,
             'serves' => $area->serves,
-
             'phone' => $area->phone,
             'email' => $area->email,
             'facebook' => $area->facebook,
             'instagram' => $area->instagram,
-
-            'image_url' => $area->image_url,
             'maps_url' => $area->maps_url,
 
-            'images' => $area->images->map(function ($image) {
-                return [
-                    'id' => $image->id,
-                    'image_url' => $image->image_url,
-                    'sort_order' => $image->sort_order,
-                ];
-            })->values(),
+            'images' => $area->images
+                ->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'image_path' => $image->image_path,
+                        'image_url' => '/storage/'
+                            . ltrim($image->image_path, '/'),
+                        'sort_order' => $image->sort_order,
+                    ];
+                })
+                ->values(),
         ]);
     }
 }

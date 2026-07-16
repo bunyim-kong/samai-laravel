@@ -1,15 +1,10 @@
 @php
-    $sliderImages = collect();
-
-    if ($area->image_url) {
-        $sliderImages->push($area->image_url);
-    }
-
-    foreach ($area->images as $galleryImage) {
-        if ($galleryImage->image_url) {
-            $sliderImages->push($galleryImage->image_url);
-        }
-    }
+    $sliderImages = $area->images
+        ->filter(function ($image) {
+            return !empty($image->image_path);
+        })
+        ->sortBy('sort_order')
+        ->values();
 @endphp
 
 <div class="venue-card">
@@ -21,7 +16,7 @@
         <button
             type="button"
             class="venue-close-btn"
-            onclick="window.postMessage({ type: 'close_card' }, '*')"
+            data-close-venue-card
             aria-label="Close venue details"
         >
             <svg
@@ -31,9 +26,21 @@
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2"
+                aria-hidden="true"
             >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <line
+                    x1="18"
+                    y1="6"
+                    x2="6"
+                    y2="18"
+                ></line>
+
+                <line
+                    x1="6"
+                    y1="6"
+                    x2="18"
+                    y2="18"
+                ></line>
             </svg>
         </button>
     </div>
@@ -54,9 +61,8 @@
             <div id="slider" class="slider-wrapper">
                 @foreach ($sliderImages as $image)
                     <img
-                        src="{{ $image }}"
-                        alt="{{ $area->title }}"
-                        loading="lazy"
+                        src="{{ '/storage/' . ltrim($image->image_path, '/') }}"
+                        alt="{{ $area->title }} photo {{ $loop->iteration }}"
                     >
                 @endforeach
             </div>
@@ -72,12 +78,22 @@
                 </button>
             @endif
         </div>
+    @else
+        <div class="no-venue-photo">
+            <i class="fa-solid fa-image"></i>
+
+            <span>
+                No photos uploaded
+            </span>
+        </div>
     @endif
 
     <div class="venue-content">
         @if ($area->address)
             <div class="venue-info-group">
-                <span class="venue-label">Address</span>
+                <span class="venue-label">
+                    Address
+                </span>
 
                 <p class="venue-text">
                     {{ $area->address }}
@@ -123,7 +139,9 @@
 
         @if ($area->maps_url)
             <div class="venue-info-group">
-                <span class="venue-label">Location</span>
+                <span class="venue-label">
+                    Location
+                </span>
 
                 <div class="contact-item">
                     <i class="fa-solid fa-location-dot"></i>
@@ -141,7 +159,9 @@
 
         @if ($area->phone || $area->email)
             <div class="venue-info-group">
-                <span class="venue-label">Contact</span>
+                <span class="venue-label">
+                    Contact
+                </span>
 
                 @if ($area->phone)
                     <div class="contact-item">
@@ -167,7 +187,9 @@
 
         @if ($area->instagram || $area->facebook)
             <div class="venue-info-group">
-                <span class="venue-label">Follow Us</span>
+                <span class="venue-label">
+                    Follow Us
+                </span>
 
                 <div class="venue-social-links">
                     @if ($area->instagram)
@@ -204,20 +226,22 @@
         width: 100%;
         padding: 24px 24px 28px;
         box-sizing: border-box;
-        background: white;
+        background: #ffffff;
         color: #2d241c;
     }
 
     .venue-header {
+        position: relative;
         display: flex;
+        align-items: flex-start;
         justify-content: space-between;
-        align-items: center;
         gap: 12px;
         margin-bottom: 20px;
     }
 
     .venue-title {
         margin: 0;
+        padding-right: 8px;
         font-family: 'Montserrat', sans-serif;
         font-size: 24px;
         line-height: 1.25;
@@ -226,23 +250,34 @@
     }
 
     .venue-close-btn {
-        flex-shrink: 0;
-        width: 36px;
-        height: 36px;
+        position: relative;
+        z-index: 20;
+        flex: 0 0 auto;
+        width: 38px;
+        height: 38px;
         padding: 0;
         border: none;
-        background: transparent;
+        border-radius: 50%;
+        background: #f4efe9;
         color: #6b5a4a;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: .2s ease;
+        transition:
+            color .2s ease,
+            background .2s ease,
+            transform .2s ease;
     }
 
     .venue-close-btn:hover {
-        color: #b7936e;
+        color: #ffffff;
+        background: #b7936e;
         transform: rotate(90deg);
+    }
+
+    .venue-close-btn svg {
+        pointer-events: none;
     }
 
     .slider-container {
@@ -252,13 +287,15 @@
 
     .slider-wrapper {
         display: flex;
+        width: 100%;
         overflow: hidden;
         scroll-behavior: smooth;
         border-radius: 18px;
-        background: #eee;
+        background: #eeeeee;
     }
 
     .slider-wrapper img {
+        display: block;
         flex: 0 0 100%;
         width: 100%;
         height: 230px;
@@ -272,19 +309,26 @@
         transform: translateY(-50%);
         width: 34px;
         height: 34px;
+        padding: 0;
         border: none;
         border-radius: 50%;
-        background: rgba(0, 0, 0, .45);
-        color: white;
+        background: rgba(0, 0, 0, .5);
+        color: #ffffff;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: .2s ease;
+        transition:
+            background .2s ease,
+            transform .2s ease;
     }
 
     .slider-nav:hover {
-        background: rgba(0, 0, 0, .7);
+        background: rgba(0, 0, 0, .75);
+    }
+
+    .slider-nav:active {
+        transform: translateY(-50%) scale(.94);
     }
 
     .slider-prev {
@@ -293,6 +337,28 @@
 
     .slider-next {
         right: 12px;
+    }
+
+    .no-venue-photo {
+        height: 230px;
+        margin-bottom: 24px;
+        border-radius: 18px;
+        background: #f2eee9;
+        color: #a18e7b;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .no-venue-photo i {
+        font-size: 30px;
+    }
+
+    .no-venue-photo span {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 13px;
     }
 
     .venue-content {
@@ -314,6 +380,7 @@
     .venue-label {
         display: block;
         margin-bottom: 5px;
+        font-family: 'Montserrat', sans-serif;
         font-size: 10px;
         font-weight: 700;
         text-transform: uppercase;
@@ -323,6 +390,7 @@
 
     .venue-text {
         margin: 0;
+        font-family: 'Montserrat', sans-serif;
         font-size: 14px;
         line-height: 1.6;
         color: #3d342c;
@@ -339,6 +407,7 @@
         align-items: flex-start;
         gap: 10px;
         margin-top: 8px;
+        font-family: 'Montserrat', sans-serif;
         font-size: 13px;
         color: #3d342c;
     }
@@ -353,6 +422,7 @@
         color: inherit;
         text-decoration: none;
         overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     .contact-item a:hover {
@@ -367,11 +437,15 @@
 
     .venue-social-link {
         color: #b7936e;
+        font-family: 'Montserrat', sans-serif;
         font-size: 13px;
         font-weight: 500;
         text-decoration: none;
         padding-bottom: 3px;
         border-bottom: 2px solid transparent;
+        transition:
+            color .2s ease,
+            border-color .2s ease;
     }
 
     .venue-social-link:hover {
@@ -388,7 +462,13 @@
             font-size: 20px;
         }
 
-        .slider-wrapper img {
+        .venue-close-btn {
+            width: 36px;
+            height: 36px;
+        }
+
+        .slider-wrapper img,
+        .no-venue-photo {
             height: 220px;
         }
 
@@ -397,17 +477,3 @@
         }
     }
 </style>
-
-<script>
-    document
-        .querySelector('.venue-close-btn')
-        ?.addEventListener('click', function () {
-            window.dispatchEvent(
-                new MessageEvent('message', {
-                    data: {
-                        type: 'close_card'
-                    }
-                })
-            );
-        });
-</script>

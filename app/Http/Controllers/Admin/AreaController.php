@@ -17,7 +17,10 @@ class AreaController extends Controller
     public function index(): View
     {
         $areas = Area::query()
-            ->with('countrySide')
+            ->with([
+                'countrySide',
+                'images',
+            ])
             ->latest()
             ->paginate(10);
 
@@ -30,10 +33,7 @@ class AreaController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view(
-            'admin.areas.create',
-            compact('countrySides')
-        );
+        return view('admin.areas.create', compact('countrySides'));
     }
 
     public function store(AreaRequest $request): RedirectResponse
@@ -42,43 +42,46 @@ class AreaController extends Controller
 
         try {
             DB::transaction(function () use ($request, $validated) {
-                if ($request->hasFile('image')) {
-                    $validated['image'] = $request
-                        ->file('image')
-                        ->store('areas/main', 'public');
-                }
+                $areaData = $validated;
 
-                unset($validated['gallery']);
+                unset(
+                    $areaData['photos'],
+                    $areaData['remove_photos']
+                );
 
-                $area = Area::create($validated);
+                $areaData['is_active'] = $request->boolean('is_active');
 
-                if ($request->hasFile('gallery')) {
-                    foreach ($request->file('gallery') as $index => $file) {
-                        $path = $file->store(
-                            'areas/gallery',
-                            'public'
-                        );
+                $area = Area::create($areaData);
 
-                        $area->images()->create([
-                            'image_path' => $path,
-                            'sort_order' => $index,
-                        ]);
+                foreach ($request->file('photos', []) as $index => $photo) {
+                    if (!$photo) {
+                        continue;
                     }
+
+                    $path = $photo->store(
+                        'areas/photos',
+                        'public'
+                    );
+
+                    $area->images()->create([
+                        'image_path' => $path,
+                        'sort_order' => (int) $index,
+                    ]);
                 }
             });
+
+            return redirect()
+                ->route('admin.areas.index')
+                ->with('success', 'Area created successfully.');
         } catch (Throwable $exception) {
             report($exception);
 
             return back()
                 ->withInput()
                 ->withErrors([
-                    'error' => 'The area could not be created.',
+                    'error' => $exception->getMessage(),
                 ]);
         }
-
-        return redirect()
-            ->route('admin.areas.index')
-            ->with('success', 'Area created successfully.');
     }
 
     public function show(Area $area): View
@@ -99,10 +102,10 @@ class AreaController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view(
-            'admin.areas.edit',
-            compact('area', 'countrySides')
-        );
+        return view('admin.areas.edit', compact(
+            'area',
+            'countrySides'
+        ));
     }
 
     public function update(
@@ -117,76 +120,111 @@ class AreaController extends Controller
                 $validated,
                 $area
             ) {
-                if ($request->hasFile('image')) {
-                    if ($area->image) {
-                        Storage::disk('public')
-                            ->delete($area->image);
-                    }
+                $areaData = $validated;
 
-                    $validated['image'] = $request
-                        ->file('image')
-                        ->store('areas/main', 'public');
-                }
+                unset(
+                    $areaData['photos'],
+                    $areaData['remove_photos']
+                );
 
-                unset($validated['gallery']);
+                $areaData['is_active'] = $request->boolean('is_active');
 
-                $area->update($validated);
+                $area->update($areaData);
 
-                if ($request->hasFile('gallery')) {
-                    foreach ($request->file('gallery') as $index => $file) {
-                        $path = $file->store(
-                            'areas/gallery',
-                            'public'
+                $removePhotoIds = $request->input(
+                    'remove_photos',
+                    []
+                );
+
+                if (!empty($removePhotoIds)) {
+                    $imagesToRemove = $area->images()
+                        ->whereIn('id', $removePhotoIds)
+                        ->get();
+
+                    foreach ($imagesToRemove as $image) {
+                        Storage::disk('public')->delete(
+                            $image->image_path
                         );
 
+                        $image->delete();
+                    }
+                }
+
+                foreach ($request->file('photos', []) as $index => $photo) {
+                    if (!$photo) {
+                        continue;
+                    }
+
+                    $existingImage = $area->images()
+                        ->where('sort_order', (int) $index)
+                        ->first();
+
+                    $path = $photo->store(
+                        'areas/photos',
+                        'public'
+                    );
+
+                    if ($existingImage) {
+                        Storage::disk('public')->delete(
+                            $existingImage->image_path
+                        );
+
+                        $existingImage->update([
+                            'image_path' => $path,
+                        ]);
+                    } else {
                         $area->images()->create([
                             'image_path' => $path,
-                            'sort_order' => $area->images()->count() + $index,
+                            'sort_order' => (int) $index,
                         ]);
                     }
                 }
             });
+
+            return redirect()
+                ->route('admin.areas.index')
+                ->with('success', 'Area updated successfully.');
         } catch (Throwable $exception) {
             report($exception);
 
             return back()
                 ->withInput()
                 ->withErrors([
-                    'error' => 'The area could not be updated.',
+                    'error' => $exception->getMessage(),
                 ]);
         }
-
-        return redirect()
-            ->route('admin.areas.index')
-            ->with('success', 'Area updated successfully.');
     }
 
     public function destroy(Area $area): RedirectResponse
     {
         try {
             DB::transaction(function () use ($area) {
-                if ($area->image) {
-                    Storage::disk('public')
-                        ->delete($area->image);
-                }
+                $area->load('images');
 
                 foreach ($area->images as $image) {
-                    Storage::disk('public')
-                        ->delete($image->image_path);
+                    Storage::disk('public')->delete(
+                        $image->image_path
+                    );
+                }
+
+                if ($area->image) {
+                    Storage::disk('public')->delete(
+                        $area->image
+                    );
                 }
 
                 $area->delete();
             });
+
+            return redirect()
+                ->route('admin.areas.index')
+                ->with('success', 'Area deleted successfully.');
         } catch (Throwable $exception) {
             report($exception);
 
             return back()->withErrors([
-                'error' => 'The area could not be deleted.',
+                'error' => $exception->getMessage(),
             ]);
         }
-
-        return redirect()
-            ->route('admin.areas.index')
-            ->with('success', 'Area deleted successfully.');
     }
 }

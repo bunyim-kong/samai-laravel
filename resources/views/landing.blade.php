@@ -23,14 +23,24 @@
         right: 4px;
         width: 384px;
         height: calc(100% - 8px);
-        border: none;
         border-radius: 24px;
-        z-index: 60;
+        background: #ffffff;
+        z-index: 80;
+        overflow-y: auto;
         transition: transform .5s ease-in-out;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    #detailContainer::-webkit-scrollbar {
+        display: none;
+    }
+
+    #detailContainer.pointer-events-none {
         pointer-events: none;
     }
 
-    #detailContainer:not(.translate-x-full) {
+    #detailContainer.pointer-events-auto {
         pointer-events: auto;
     }
 
@@ -67,9 +77,9 @@
         }
 
         #detailContainer {
-            width: 100%;
-            right: 0;
             top: 0;
+            right: 0;
+            width: 100%;
             height: 100%;
             border-radius: 0;
         }
@@ -113,7 +123,7 @@
                 id="burger"
                 type="button"
                 class="flex flex-col gap-1.5 bg-transparent border-0 cursor-pointer p-1"
-                aria-label="Toggle menu"
+                aria-label="Toggle navigation"
             >
                 <span
                     class="block w-5 h-0.5 bg-[#4a2e10] rounded transition-transform duration-200"
@@ -222,9 +232,25 @@
                                 <img
                                     src="{{ asset('assets/images/phnom-penh-icon.png') }}"
                                     alt="{{ $countrySide->name }}"
-                                    class="w-full h-full object-contain"
+                                    class="w-full h-full object-contain pointer-events-none"
                                 >
                             </button>
+                        @elseif (
+                            $countrySide->slug === 'battambang' ||
+                            $countrySide->slug === 'sihanoukville'
+                        )
+                            <button
+                                type="button"
+                                class="map-dot map-dot-pulse block w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-[#c2a06d] border-2 border-white/60 cursor-pointer hover:scale-120 hover:bg-white transition-all duration-200"
+                                data-slug="{{ $countrySide->slug }}"
+                                aria-label="Open {{ $countrySide->name }} map"
+                            ></button>
+
+                            <span
+                                class="province-label text-xs sm:text-xl md:text-2xl mt-4"
+                            >
+                                {{ $countrySide->name }}
+                            </span>
                         @else
                             <span
                                 class="province-label text-xs sm:text-xl md:text-2xl mb-5"
@@ -257,8 +283,8 @@
         <button
             id="closeMap"
             type="button"
-            class="absolute top-4 right-4 z-[70] bg-white/90 hover:bg-white text-black rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-md transition-colors duration-200"
-            aria-label="Close map"
+            class="absolute top-4 right-4 z-40 bg-white/90 hover:bg-white text-black rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-md transition-colors duration-200"
+            aria-label="Close interactive map"
         >
             ✕
         </button>
@@ -272,7 +298,7 @@
 
         <div
             id="detailContainer"
-            class="hidden absolute bg-white shadow-xl transition-transform duration-500 overflow-y-auto translate-x-full"
+            class="hidden translate-x-full pointer-events-none shadow-xl"
         >
             <div id="cardContent"></div>
         </div>
@@ -290,12 +316,30 @@
     const cardContent = document.getElementById('cardContent');
 
     const mapUrlTemplate = @json(
-        route('map.show', ['countrySide' => '__COUNTRY_SIDE__'])
+        route('map.show', [
+            'countrySide' => '__COUNTRY_SIDE__'
+        ])
     );
 
     const areaUrlTemplate = @json(
-        route('areas.show', ['area' => '__AREA__'])
+        route('areas.show', [
+            'area' => '__AREA__'
+        ])
     );
+
+    function resetVenueCard() {
+        detailContainer.classList.add(
+            'hidden',
+            'translate-x-full',
+            'pointer-events-none'
+        );
+
+        detailContainer.classList.remove(
+            'pointer-events-auto'
+        );
+
+        cardContent.innerHTML = '';
+    }
 
     function openMapModal(slug) {
         const mapUrl = mapUrlTemplate.replace(
@@ -303,35 +347,25 @@
             encodeURIComponent(slug)
         );
 
+        resetVenueCard();
+
+        closeMapButton.classList.remove('hidden');
+
         modal.classList.remove('hidden');
 
-        requestAnimationFrame(() => {
-            modalContainer.classList.remove('scale-95', 'opacity-0');
-            modalContainer.classList.add('scale-100', 'opacity-100');
+        requestAnimationFrame(function () {
+            modalContainer.classList.remove(
+                'scale-95',
+                'opacity-0'
+            );
+
+            modalContainer.classList.add(
+                'scale-100',
+                'opacity-100'
+            );
         });
 
         mapIframe.src = mapUrl;
-    }
-
-    function closeVenueCard() {
-        detailContainer.classList.add('translate-x-full');
-
-        setTimeout(() => {
-            detailContainer.classList.add('hidden');
-            cardContent.innerHTML = '';
-        }, 500);
-    }
-
-    function closeMapModal() {
-        modalContainer.classList.remove('scale-100', 'opacity-100');
-        modalContainer.classList.add('scale-95', 'opacity-0');
-
-        closeVenueCard();
-
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            mapIframe.src = '';
-        }, 250);
     }
 
     function openVenueCard(areaId) {
@@ -340,10 +374,21 @@
             encodeURIComponent(areaId)
         );
 
-        detailContainer.classList.remove('hidden');
+        closeMapButton.classList.add('hidden');
 
-        requestAnimationFrame(() => {
-            detailContainer.classList.remove('translate-x-full');
+        detailContainer.classList.remove(
+            'hidden',
+            'pointer-events-none'
+        );
+
+        detailContainer.classList.add(
+            'pointer-events-auto'
+        );
+
+        requestAnimationFrame(function () {
+            detailContainer.classList.remove(
+                'translate-x-full'
+            );
         });
 
         cardContent.innerHTML = `
@@ -353,78 +398,165 @@
         `;
 
         fetch(areaUrl, {
+            method: 'GET',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html'
             }
         })
-            .then(response => {
+            .then(function (response) {
                 if (!response.ok) {
-                    throw new Error('Venue could not be loaded.');
+                    throw new Error(
+                        'Venue could not be loaded.'
+                    );
                 }
 
                 return response.text();
             })
-            .then(html => {
+            .then(function (html) {
                 cardContent.innerHTML = html;
                 initVenueSlider();
             })
-            .catch(error => {
+            .catch(function (error) {
+                console.error(error);
+
                 cardContent.innerHTML = `
                     <div class="p-8 text-red-600">
-                        ${error.message}
+                        <p class="font-semibold mb-4">
+                            ${error.message}
+                        </p>
+
+                        <button
+                            type="button"
+                            data-close-venue-card
+                            class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800"
+                        >
+                            Close
+                        </button>
                     </div>
                 `;
             });
     }
 
-    function initVenueSlider() {
-        const slider = document.querySelector('#cardContent #slider');
-        const next = document.querySelector('#cardContent #next');
-        const previous = document.querySelector('#cardContent #prev');
+    function closeVenueCard(showMapCloseButton = true) {
+        detailContainer.classList.add(
+            'translate-x-full',
+            'pointer-events-none'
+        );
 
-        if (!slider || !next || !previous) {
+        detailContainer.classList.remove(
+            'pointer-events-auto'
+        );
+
+        setTimeout(function () {
+            detailContainer.classList.add('hidden');
+            cardContent.innerHTML = '';
+
+            if (
+                showMapCloseButton &&
+                !modal.classList.contains('hidden')
+            ) {
+                closeMapButton.classList.remove('hidden');
+            }
+        }, 500);
+    }
+
+    function closeMapModal() {
+        closeMapButton.classList.add('hidden');
+
+        closeVenueCard(false);
+
+        modalContainer.classList.remove(
+            'scale-100',
+            'opacity-100'
+        );
+
+        modalContainer.classList.add(
+            'scale-95',
+            'opacity-0'
+        );
+
+        setTimeout(function () {
+            modal.classList.add('hidden');
+            mapIframe.src = '';
+            resetVenueCard();
+            closeMapButton.classList.remove('hidden');
+        }, 300);
+    }
+
+    function initVenueSlider() {
+        const slider = cardContent.querySelector('#slider');
+        const nextButton = cardContent.querySelector('#next');
+        const previousButton = cardContent.querySelector('#prev');
+
+        if (!slider) {
             return;
         }
 
-        next.onclick = function () {
-            slider.scrollBy({
-                left: slider.clientWidth,
-                behavior: 'smooth'
+        if (nextButton) {
+            nextButton.addEventListener('click', function () {
+                slider.scrollBy({
+                    left: slider.clientWidth,
+                    behavior: 'smooth'
+                });
             });
-        };
+        }
 
-        previous.onclick = function () {
-            slider.scrollBy({
-                left: -slider.clientWidth,
-                behavior: 'smooth'
+        if (previousButton) {
+            previousButton.addEventListener('click', function () {
+                slider.scrollBy({
+                    left: -slider.clientWidth,
+                    behavior: 'smooth'
+                });
             });
-        };
+        }
     }
 
-    document.querySelectorAll('.map-dot').forEach(dot => {
+    cardContent.addEventListener('click', function (event) {
+        const closeButton = event.target.closest(
+            '[data-close-venue-card]'
+        );
+
+        if (!closeButton) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        closeVenueCard();
+    });
+
+    document.querySelectorAll('.map-dot').forEach(function (dot) {
         dot.addEventListener('click', function () {
             openMapModal(this.dataset.slug);
         });
     });
 
-    closeMapButton.addEventListener('click', closeMapModal);
+    closeMapButton.addEventListener('click', function () {
+        closeMapModal();
+    });
 
-    modal.addEventListener('click', event => {
+    modal.addEventListener('click', function (event) {
         if (event.target === modal) {
             closeMapModal();
         }
     });
 
-    document.addEventListener('keydown', event => {
+    document.addEventListener('keydown', function (event) {
         if (
             event.key === 'Escape' &&
             !modal.classList.contains('hidden')
         ) {
-            closeMapModal();
+            if (!detailContainer.classList.contains('hidden')) {
+                closeVenueCard();
+            } else {
+                closeMapModal();
+            }
         }
     });
 
-    window.addEventListener('message', event => {
+    window.addEventListener('message', function (event) {
         if (!event.data || typeof event.data !== 'object') {
             return;
         }

@@ -15,6 +15,7 @@ class AreaImage extends Model
     ];
 
     protected $casts = [
+        'area_id' => 'integer',
         'sort_order' => 'integer',
     ];
 
@@ -33,6 +34,15 @@ class AreaImage extends Model
             return null;
         }
 
-        return Storage::disk('public')->url($this->image_path);
+        if (
+            str_starts_with($this->image_path, 'http://') ||
+            str_starts_with($this->image_path, 'https://')
+        ) {
+            return $this->image_path;
+        }
+
+        return Storage::disk('public')->url(
+            $this->image_path
+        );
     }
 }
