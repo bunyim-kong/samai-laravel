@@ -14,7 +14,9 @@
             class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 bg-white outline-none focus:border-[#b7936e]"
             required
         >
-            <option value="">Select country side</option>
+            <option value="">
+                Select country side
+            </option>
 
             @foreach ($countrySides as $countrySideOption)
                 <option
@@ -22,7 +24,8 @@
                     @selected(
                         old(
                             'country_side_id',
-                            $area->country_side_id ?? request('country_side_id')
+                            $area->country_side_id
+                                ?? request('country_side_id')
                         ) == $countrySideOption->id
                     )
                 >
@@ -82,7 +85,7 @@
         >
 
         <p class="text-xs text-gray-500 mt-2">
-            Use lowercase letters, numbers, and hyphens.
+            Lowercase letters, numbers and hyphens only.
         </p>
 
         @error('slug')
@@ -154,7 +157,10 @@
             type="url"
             id="google_map_url"
             name="google_map_url"
-            value="{{ old('google_map_url', $area->google_map_url ?? '') }}"
+            value="{{ old(
+                'google_map_url',
+                $area->google_map_url ?? ''
+            ) }}"
             class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
             placeholder="https://maps.google.com/..."
         >
@@ -173,20 +179,27 @@
             </h3>
 
             <p class="text-sm text-gray-500 mt-1">
-                Upload up to five photos. Photo 1 appears first in the slider.
+                Upload up to five photos. Photo 1 appears
+                first in the slider.
             </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4"
+        >
             @for ($index = 0; $index < 5; $index++)
                 @php
                     $existingImage = isset($area)
-                        ? $area->images
-                            ->firstWhere('sort_order', $index)
+                        ? $area->images->firstWhere(
+                            'sort_order',
+                            $index
+                        )
                         : null;
                 @endphp
 
-                <div class="rounded-2xl border border-[#d9d1c8] bg-[#faf8f5] p-4">
+                <div
+                    class="rounded-2xl border border-[#d9d1c8] bg-[#faf8f5] p-4"
+                >
                     <label
                         for="photos_{{ $index }}"
                         class="block text-sm font-semibold mb-3"
@@ -208,7 +221,9 @@
                             id="previewPlaceholder{{ $index }}"
                             class="{{ $existingImage ? 'hidden' : '' }} text-center text-gray-400 px-3"
                         >
-                            <i class="fa-solid fa-image text-2xl"></i>
+                            <i
+                                class="fa-solid fa-image text-2xl"
+                            ></i>
 
                             <p class="text-xs mt-2">
                                 No photo
@@ -226,7 +241,9 @@
                     >
 
                     @if ($existingImage)
-                        <label class="flex items-center gap-2 mt-3 text-sm text-red-600 cursor-pointer">
+                        <label
+                            class="flex items-center gap-2 mt-3 text-sm text-red-600 cursor-pointer"
+                        >
                             <input
                                 type="checkbox"
                                 name="remove_photos[]"
@@ -289,7 +306,10 @@
             name="open_hours"
             rows="3"
             class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
-        >{{ old('open_hours', $area->open_hours ?? '') }}</textarea>
+        >{{ old(
+            'open_hours',
+            $area->open_hours ?? ''
+        ) }}</textarea>
 
         @error('open_hours')
             <p class="text-sm text-red-600 mt-2">
@@ -311,7 +331,10 @@
             name="description"
             rows="5"
             class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
-        >{{ old('description', $area->description ?? '') }}</textarea>
+        >{{ old(
+            'description',
+            $area->description ?? ''
+        ) }}</textarea>
 
         @error('description')
             <p class="text-sm text-red-600 mt-2">
@@ -333,7 +356,10 @@
             name="serves"
             rows="3"
             class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
-        >{{ old('serves', $area->serves ?? '') }}</textarea>
+        >{{ old(
+            'serves',
+            $area->serves ?? ''
+        ) }}</textarea>
 
         @error('serves')
             <p class="text-sm text-red-600 mt-2">
@@ -400,7 +426,10 @@
             type="url"
             id="facebook"
             name="facebook"
-            value="{{ old('facebook', $area->facebook ?? '') }}"
+            value="{{ old(
+                'facebook',
+                $area->facebook ?? ''
+            ) }}"
             class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
         >
 
@@ -423,7 +452,10 @@
             type="url"
             id="instagram"
             name="instagram"
-            value="{{ old('instagram', $area->instagram ?? '') }}"
+            value="{{ old(
+                'instagram',
+                $area->instagram ?? ''
+            ) }}"
             class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
         >
 
@@ -441,12 +473,19 @@
             value="0"
         >
 
-        <label class="inline-flex items-center gap-3 cursor-pointer">
+        <label
+            class="inline-flex items-center gap-3 cursor-pointer"
+        >
             <input
                 type="checkbox"
                 name="is_active"
                 value="1"
-                @checked(old('is_active', $area->is_active ?? true))
+                @checked(
+                    old(
+                        'is_active',
+                        $area->is_active ?? true
+                    )
+                )
                 class="w-5 h-5 accent-[#b7936e]"
             >
 
@@ -454,10 +493,6 @@
                 Active
             </span>
         </label>
-
-        <p class="text-xs text-gray-500 mt-2">
-            Inactive areas will not be displayed on the public map.
-        </p>
     </div>
 
 </div>
@@ -467,54 +502,76 @@
     document
         .querySelectorAll('[data-preview-index]')
         .forEach(function (input) {
-            input.addEventListener('change', function () {
-                const index = this.dataset.previewIndex;
-                const file = this.files[0];
+            input.addEventListener(
+                'change',
+                function () {
+                    const index =
+                        this.dataset.previewIndex;
 
-                if (!file) {
+                    const file = this.files[0];
+
+                    if (!file) {
+                        return;
+                    }
+
+                    const previewImage =
+                        document.getElementById(
+                            'previewImage' + index
+                        );
+
+                    const placeholder =
+                        document.getElementById(
+                            'previewPlaceholder' + index
+                        );
+
+                    previewImage.src =
+                        URL.createObjectURL(file);
+
+                    previewImage.classList.remove(
+                        'hidden'
+                    );
+
+                    placeholder?.classList.add(
+                        'hidden'
+                    );
+                }
+            );
+        });
+
+    const titleInput =
+        document.getElementById('title');
+
+    const slugInput =
+        document.getElementById('slug');
+
+    if (titleInput && slugInput) {
+        titleInput.addEventListener(
+            'input',
+            function () {
+                if (
+                    slugInput.dataset.edited === 'true'
+                ) {
                     return;
                 }
 
-                const previewImage = document.getElementById(
-                    'previewImage' + index
-                );
-
-                const placeholder = document.getElementById(
-                    'previewPlaceholder' + index
-                );
-
-                previewImage.src = URL.createObjectURL(file);
-                previewImage.classList.remove('hidden');
-
-                if (placeholder) {
-                    placeholder.classList.add('hidden');
-                }
-            });
-        });
-
-    const titleInput = document.getElementById('title');
-    const slugInput = document.getElementById('slug');
-
-    if (titleInput && slugInput) {
-        titleInput.addEventListener('input', function () {
-            if (slugInput.dataset.edited === 'true') {
-                return;
+                slugInput.value = this.value
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
             }
+        );
 
-            slugInput.value = this.value
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '');
-        });
+        slugInput.addEventListener(
+            'input',
+            function () {
+                this.dataset.edited = 'true';
 
-        slugInput.addEventListener('input', function () {
-            this.dataset.edited = 'true';
-
-            this.value = this.value
-                .toLowerCase()
-                .replace(/[^a-z0-9-]/g, '');
-        });
+                this.value = this.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9-]/g, '');
+            }
+        );
     }
 </script>
 @endpush

@@ -12,12 +12,7 @@ class AreaController extends Controller
     {
         $area->load([
             'countrySide',
-            'images' => function ($query) {
-                $query
-                    ->whereNotNull('image_path')
-                    ->orderBy('sort_order')
-                    ->orderBy('id');
-            },
+            'images',
         ]);
 
         return view(
@@ -30,12 +25,7 @@ class AreaController extends Controller
     {
         $area->load([
             'countrySide',
-            'images' => function ($query) {
-                $query
-                    ->whereNotNull('image_path')
-                    ->orderBy('sort_order')
-                    ->orderBy('id');
-            },
+            'images',
         ]);
 
         return response()->json([
@@ -60,12 +50,10 @@ class AreaController extends Controller
             'open_hours' => $area->open_hours,
             'description' => $area->description,
             'serves' => $area->serves,
-
             'phone' => $area->phone,
             'email' => $area->email,
             'facebook' => $area->facebook,
             'instagram' => $area->instagram,
-
             'maps_url' => $area->maps_url,
 
             'images' => $area->images

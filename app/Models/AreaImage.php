@@ -47,14 +47,14 @@ class AreaImage extends Model
 
         $path = ltrim($path, '/');
 
-        if (Str::startsWith($path, 'public/')) {
-            $path = Str::after($path, 'public/');
+        if (Str::startsWith($path, 'public/uploads/')) {
+            $path = Str::after($path, 'public/uploads/');
         }
 
-        if (Str::startsWith($path, 'storage/')) {
-            $path = Str::after($path, 'storage/');
+        if (Str::startsWith($path, 'uploads/')) {
+            $path = Str::after($path, 'uploads/');
         }
 
-        return '/storage/' . $path;
+        return '/uploads/' . $path;
     }
 }

@@ -2,12 +2,16 @@
 
 @section('title', 'Add Area - Samai Admin')
 @section('page-title', 'Add Area')
-@section('page-description', 'Create a venue or map location')
+@section(
+    'page-description',
+    'Create a venue or map location'
+)
 
 @section('content')
 <div class="max-w-6xl">
-    <div class="bg-white rounded-2xl border border-[#e4ddd5] shadow-sm p-6 sm:p-8">
-
+    <div
+        class="bg-white rounded-2xl border border-[#e4ddd5] shadow-sm p-6 sm:p-8"
+    >
         <form
             method="POST"
             action="{{ route('admin.areas.store') }}"
@@ -17,8 +21,9 @@
 
             @include('admin.areas.form')
 
-            <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-8 pt-6 border-t border-[#eee7df]">
-
+            <div
+                class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-8 pt-6 border-t border-[#eee7df]"
+            >
                 <a
                     href="{{ route('admin.areas.index') }}"
                     class="inline-flex justify-center items-center px-5 py-3 rounded-xl border border-[#d9d1c8] font-semibold text-sm hover:bg-[#f4f1ed]"
@@ -30,13 +35,14 @@
                     type="submit"
                     class="inline-flex justify-center items-center gap-2 bg-[#b7936e] hover:bg-[#a5825e] text-[#2d241c] px-5 py-3 rounded-xl font-semibold text-sm cursor-pointer"
                 >
-                    <i class="fa-solid fa-floppy-disk"></i>
+                    <i
+                        class="fa-solid fa-floppy-disk"
+                    ></i>
+
                     Save Area
                 </button>
-
             </div>
         </form>
-
     </div>
 </div>
 @endsection
