@@ -64,13 +64,15 @@ class AreaController extends Controller
                     $areaData['is_active'] =
                         $request->boolean('is_active');
 
+                    $areaData['is_recommended'] =
+                        $request->boolean('is_recommended');
+
                     $area = Area::create($areaData);
 
                     foreach (
-                        $request->file('photos', [])
-                        as $index => $photo
+                        $request->file('photos', []) as $index => $photo
                     ) {
-                        if (!$photo instanceof UploadedFile) {
+                        if (! $photo instanceof UploadedFile) {
                             continue;
                         }
 
@@ -155,6 +157,9 @@ class AreaController extends Controller
                     $areaData['is_active'] =
                         $request->boolean('is_active');
 
+                    $areaData['is_recommended'] =
+                        $request->boolean('is_recommended');
+
                     $area->update($areaData);
 
                     $removePhotoIds = $request->input(
@@ -175,10 +180,9 @@ class AreaController extends Controller
                     }
 
                     foreach (
-                        $request->file('photos', [])
-                        as $index => $photo
+                        $request->file('photos', []) as $index => $photo
                     ) {
-                        if (!$photo instanceof UploadedFile) {
+                        if (! $photo instanceof UploadedFile) {
                             continue;
                         }
 
@@ -270,8 +274,8 @@ class AreaController extends Controller
         );
 
         $filename = Str::uuid()->toString()
-            . '.'
-            . $extension;
+            .'.'
+            .$extension;
 
         return $photo->storeAs(
             'areas/photos',

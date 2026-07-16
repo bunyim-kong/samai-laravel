@@ -466,7 +466,7 @@
         @enderror
     </div>
 
-    <div class="lg:col-span-2">
+    <div class="lg:col-span-2 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
         <input
             type="hidden"
             name="is_active"
@@ -491,6 +491,33 @@
 
             <span class="font-semibold">
                 Active
+            </span>
+        </label>
+
+        <input
+            type="hidden"
+            name="is_recommended"
+            value="0"
+        >
+
+        <label
+            class="inline-flex items-center gap-3 cursor-pointer"
+        >
+            <input
+                type="checkbox"
+                name="is_recommended"
+                value="1"
+                @checked(
+                    old(
+                        'is_recommended',
+                        $area->is_recommended ?? false
+                    )
+                )
+                class="w-5 h-5 accent-[#b7936e]"
+            >
+
+            <span class="font-semibold">
+                Recommended / Favorite
             </span>
         </label>
     </div>
@@ -543,6 +570,118 @@
 
     const slugInput =
         document.getElementById('slug');
+
+    const mapUrlInput =
+        document.getElementById('google_map_url');
+
+    const latInput =
+        document.getElementById('lat');
+
+    const lngInput =
+        document.getElementById('lng');
+
+    function validCoordinates(lat, lng) {
+        return Number.isFinite(lat) &&
+            Number.isFinite(lng) &&
+            lat >= -90 &&
+            lat <= 90 &&
+            lng >= -180 &&
+            lng <= 180;
+    }
+
+    function extractCoordinatesFromMapUrl(url) {
+        const value = (url || '').trim();
+
+        if (!value) {
+            return null;
+        }
+
+        const patterns = [
+            /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+            /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/
+        ];
+
+        for (const pattern of patterns) {
+            const match = value.match(pattern);
+
+            if (!match) {
+                continue;
+            }
+
+            const lat = Number.parseFloat(match[1]);
+            const lng = Number.parseFloat(match[2]);
+
+            if (validCoordinates(lat, lng)) {
+                return { lat, lng };
+            }
+        }
+
+        try {
+            const parsedUrl = new URL(value);
+            const params = parsedUrl.searchParams;
+
+            for (const key of ['query', 'q', 'll']) {
+                const coordinates = params.get(key);
+
+                if (!coordinates) {
+                    continue;
+                }
+
+                const match = coordinates.match(
+                    /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/
+                );
+
+                if (!match) {
+                    continue;
+                }
+
+                const lat = Number.parseFloat(match[1]);
+                const lng = Number.parseFloat(match[2]);
+
+                if (validCoordinates(lat, lng)) {
+                    return { lat, lng };
+                }
+            }
+        } catch (error) {
+            return null;
+        }
+
+        return null;
+    }
+
+    function syncCoordinatesFromMapUrl() {
+        if (!mapUrlInput || !latInput || !lngInput) {
+            return;
+        }
+
+        const coordinates = extractCoordinatesFromMapUrl(
+            mapUrlInput.value
+        );
+
+        if (!coordinates) {
+            return;
+        }
+
+        latInput.value = coordinates.lat.toFixed(7);
+        lngInput.value = coordinates.lng.toFixed(7);
+    }
+
+    mapUrlInput?.addEventListener(
+        'input',
+        syncCoordinatesFromMapUrl
+    );
+
+    mapUrlInput?.addEventListener(
+        'paste',
+        function () {
+            window.setTimeout(syncCoordinatesFromMapUrl, 0);
+        }
+    );
+
+    mapUrlInput?.addEventListener(
+        'change',
+        syncCoordinatesFromMapUrl
+    );
 
     if (titleInput && slugInput) {
         titleInput.addEventListener(

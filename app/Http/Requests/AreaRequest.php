@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\GoogleMapsUrlParser;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -10,6 +11,19 @@ class AreaRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $coordinates = GoogleMapsUrlParser::coordinatesFromUrl(
+            $this->input('google_map_url')
+        );
+
+        if ($coordinates === null) {
+            return;
+        }
+
+        $this->merge($coordinates);
     }
 
     public function rules(): array
@@ -106,6 +120,11 @@ class AreaRequest extends FormRequest
                 'boolean',
             ],
 
+            'is_recommended' => [
+                'nullable',
+                'boolean',
+            ],
+
             'photos' => [
                 'nullable',
                 'array',
@@ -134,20 +153,15 @@ class AreaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'slug.regex' =>
-                'The slug may only contain lowercase letters, numbers and hyphens.',
+            'slug.regex' => 'The slug may only contain lowercase letters, numbers and hyphens.',
 
-            'photos.max' =>
-                'You can upload a maximum of five photos.',
+            'photos.max' => 'You can upload a maximum of five photos.',
 
-            'photos.*.image' =>
-                'Every uploaded file must be an image.',
+            'photos.*.image' => 'Every uploaded file must be an image.',
 
-            'photos.*.mimes' =>
-                'Photos must be JPG, JPEG, PNG or WEBP.',
+            'photos.*.mimes' => 'Photos must be JPG, JPEG, PNG or WEBP.',
 
-            'photos.*.max' =>
-                'Each photo must not be larger than 5 MB.',
+            'photos.*.max' => 'Each photo must not be larger than 5 MB.',
         ];
     }
 }

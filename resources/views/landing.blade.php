@@ -14,7 +14,39 @@
     }
 
     .map-frame {
-        aspect-ratio: 3 / 4;
+        aspect-ratio: 677 / 573;
+        width: min(94vw, calc(48dvh * 677 / 573));
+        margin-top: 12px;
+    }
+
+    .map-frame > img {
+        object-fit: fill;
+    }
+
+    .map-marker {
+        position: absolute;
+        transform: translate(-50%, -50%);
+    }
+
+    .map-marker .province-label {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+
+    .province-label-above {
+        bottom: calc(100% + 12px);
+    }
+
+    .province-label-below {
+        top: calc(100% + 12px);
+    }
+
+    @media (min-width: 768px) {
+        .map-frame {
+            width: min(100%, calc(90vh * 677 / 573));
+        }
     }
 
     #detailContainer {
@@ -65,15 +97,23 @@
         animation: pinPulse 2s infinite ease-in-out;
     }
 
-    @media (max-width: 768px) {
-        .map-frame {
-            margin-top: -40px;
+    @media (max-width: 767.98px) {
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: -80px;
+            padding-bottom: 18px;
         }
 
         .samai-info {
             position: relative;
+            top: auto;
+            right: auto;
             width: 100%;
-            max-width: 400px;
+            max-width: 320px;
+            margin: 0 auto 10px;
         }
 
         #detailContainer {
@@ -89,10 +129,10 @@
 
 @section('content')
 <section
-    class="min-h-screen w-full bg-[#3a3942] text-white relative flex flex-col overflow-x-hidden select-none"
+    class="h-screen min-h-[100dvh] w-full bg-[#3a3942] text-white relative flex flex-col overflow-hidden select-none"
 >
     <header
-        class="my-5 mx-4 md:mx-12 lg:mx-32 xl:mx-64 rounded-3xl px-6 py-3 text-base font-semibold z-50 sticky top-5 shadow-lg backdrop-blur-md bg-[#b7936e]"
+        class="shrink-0 my-3 mx-4 md:mx-12 lg:mx-32 xl:mx-64 rounded-3xl px-5 sm:px-6 py-2.5 sm:py-3 text-base font-semibold z-50 sticky md:absolute md:left-0 md:right-0 top-3 shadow-lg backdrop-blur-md bg-[#b7936e]"
     >
         <nav class="hidden sm:flex justify-between items-center">
             <a
@@ -166,15 +206,14 @@
     </header>
 
     <div
-        class="flex-1 flex flex-col items-center justify-center md:block relative w-full h-full p-4 max-w-[1600px] mx-auto z-10"
-    >
+        class="content-wrapper flex-1 min-h-0 flex flex-col items-center justify-center relative w-full p-3 md:p-4 max-w-[1600px] mx-auto z-10">
         <div
-            class="samai-info relative md:absolute top-0 md:top-[2%] right-[6%] md:right-[14%] z-30 flex flex-col items-center text-center w-full md:w-56 lg:w-64 mb-6 md:mb-0"
+            class="samai-info relative md:absolute top-0 md:top-[12%] right-auto md:right-[14%] z-30 flex flex-col items-center text-center w-full md:w-56 lg:w-64 mb-3 md:mb-0"
         >
             <img
                 src="{{ asset('assets/images/samai-logo.png') }}"
                 alt="Samai Logo"
-                class="w-full max-w-[120px] sm:max-w-[140px] md:max-w-[180px] object-contain drop-shadow-2xl"
+                class="w-full max-w-[112px] sm:max-w-[140px] md:max-w-[180px] object-contain drop-shadow-2xl"
             >
 
             <div class="mt-2 md:mt-3 space-y-1 px-4">
@@ -198,9 +237,9 @@
             </div>
         </div>
 
-        <div class="flex-1 flex items-center justify-center w-full">
+        <div class="w-full min-h-0 flex items-center justify-center">
             <div
-                class="map-frame relative w-full max-w-[100vw] md:max-w-[100vh] lg:max-w-[100vh] max-h-[80vh] md:max-h-[90vh] mx-auto -mt-[40px] md:-mt-[60px]"
+                class="map-frame relative max-w-full mx-auto mt-0 md:-mt-[60px]"
             >
                 <img
                     src="{{ asset('assets/images/bg-map.png') }}"
@@ -210,7 +249,7 @@
 
                 @foreach ($countrySides as $countrySide)
                     <div
-                        class="absolute z-20 flex flex-col items-center transform -translate-x-1/2 -translate-y-1/2"
+                        class="map-marker z-20"
                         style="
                             top: {{ $countrySide->position_top ?? 50 }}%;
                             left: {{ $countrySide->position_left ?? 50 }}%;
@@ -218,7 +257,7 @@
                     >
                         @if ($countrySide->slug === 'phnom-penh')
                             <span
-                                class="province-label text-sm sm:text-2xl md:text-3xl mb-2"
+                                class="province-label province-label-above text-sm sm:text-2xl md:text-3xl"
                             >
                                 {{ $countrySide->name }}
                             </span>
@@ -247,13 +286,13 @@
                             ></button>
 
                             <span
-                                class="province-label text-xs sm:text-xl md:text-2xl mt-4"
+                                class="province-label province-label-below text-xs sm:text-xl md:text-2xl"
                             >
                                 {{ $countrySide->name }}
                             </span>
                         @else
                             <span
-                                class="province-label text-xs sm:text-xl md:text-2xl mb-5"
+                                class="province-label province-label-above text-xs sm:text-xl md:text-2xl"
                             >
                                 {{ $countrySide->name }}
                             </span>

@@ -28,6 +28,7 @@ class Area extends Model
         'facebook',
         'instagram',
         'is_active',
+        'is_recommended',
     ];
 
     protected $casts = [
@@ -35,6 +36,7 @@ class Area extends Model
         'lat' => 'decimal:7',
         'lng' => 'decimal:7',
         'is_active' => 'boolean',
+        'is_recommended' => 'boolean',
     ];
 
     protected $appends = [
@@ -111,8 +113,8 @@ class Area extends Model
         }
 
         return 'https://www.google.com/maps/search/?api=1&query='
-            . $this->lat
-            . ','
-            . $this->lng;
+            .$this->lat
+            .','
+            .$this->lng;
     }
 }
