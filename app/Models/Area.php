@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Area extends Model
 {
+    protected $table = 'areas';
+
     protected $fillable = [
         'country_side_id',
         'title',
@@ -27,6 +28,7 @@ class Area extends Model
         'facebook',
         'instagram',
         'is_active',
+        'is_recommended',
     ];
 
     protected $casts = [
@@ -34,6 +36,7 @@ class Area extends Model
         'lat' => 'decimal:7',
         'lng' => 'decimal:7',
         'is_active' => 'boolean',
+        'is_recommended' => 'boolean',
     ];
 
     protected $appends = [
@@ -43,12 +46,18 @@ class Area extends Model
 
     public function countrySide(): BelongsTo
     {
-        return $this->belongsTo(CountrySide::class);
+        return $this->belongsTo(
+            CountrySide::class,
+            'country_side_id'
+        );
     }
 
     public function images(): HasMany
     {
-        return $this->hasMany(AreaImage::class)
+        return $this->hasMany(
+            AreaImage::class,
+            'area_id'
+        )
             ->orderBy('sort_order')
             ->orderBy('id');
     }
@@ -68,14 +77,20 @@ class Area extends Model
             return $query;
         }
 
-        return $query->where(function (Builder $builder) use ($search) {
-            $builder
-                ->where('title', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$search}%")
-                ->orWhere('address', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%")
-                ->orWhere('serves', 'like', "%{$search}%");
-        });
+        return $query->where(
+            function (Builder $builder) use ($search) {
+                $builder
+                    ->where('title', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere(
+                        'description',
+                        'like',
+                        "%{$search}%"
+                    )
+                    ->orWhere('serves', 'like', "%{$search}%");
+            }
+        );
     }
 
     public function getImageUrlAttribute(): ?string
@@ -84,15 +99,7 @@ class Area extends Model
             ? $this->images->first()
             : $this->images()->first();
 
-        if ($firstImage) {
-            return $firstImage->image_url;
-        }
-
-        if (!$this->image) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($this->image);
+        return $firstImage?->image_url;
     }
 
     public function getMapsUrlAttribute(): ?string
@@ -106,8 +113,8 @@ class Area extends Model
         }
 
         return 'https://www.google.com/maps/search/?api=1&query='
-            . $this->lat
-            . ','
-            . $this->lng;
+            .$this->lat
+            .','
+            .$this->lng;
     }
 }

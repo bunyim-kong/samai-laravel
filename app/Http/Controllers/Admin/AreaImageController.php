@@ -6,20 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\AreaImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class AreaImageController extends Controller
 {
     public function destroy(
         AreaImage $areaImage
     ): RedirectResponse {
-        Storage::disk('public')
-            ->delete($areaImage->image_path);
+        try {
+            Storage::disk('uploads')->delete(
+                $areaImage->image_path
+            );
 
-        $areaImage->delete();
+            $areaImage->delete();
 
-        return back()->with(
-            'success',
-            'Gallery image deleted successfully.'
-        );
+            return back()->with(
+                'success',
+                'Photo deleted successfully.'
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors([
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 }

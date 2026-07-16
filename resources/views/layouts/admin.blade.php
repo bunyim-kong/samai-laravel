@@ -116,7 +116,7 @@
                 <div class="pt-4 mt-4 border-t border-white/10">
 
                     <a
-                        href="{{ route('landing') }}"
+                        href="{{ route('welcome') }}"
                         target="_blank"
                         class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-200 hover:bg-white/10 transition"
                     >

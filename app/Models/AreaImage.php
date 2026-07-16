@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AreaImage extends Model
 {
+    protected $table = 'area_images';
+
     protected $fillable = [
         'area_id',
         'image_path',
@@ -34,15 +36,25 @@ class AreaImage extends Model
             return null;
         }
 
+        $path = trim($this->image_path);
+
         if (
-            str_starts_with($this->image_path, 'http://') ||
-            str_starts_with($this->image_path, 'https://')
+            Str::startsWith($path, 'http://') ||
+            Str::startsWith($path, 'https://')
         ) {
-            return $this->image_path;
+            return $path;
         }
 
-        return Storage::disk('public')->url(
-            $this->image_path
-        );
+        $path = ltrim($path, '/');
+
+        if (Str::startsWith($path, 'public/uploads/')) {
+            $path = Str::after($path, 'public/uploads/');
+        }
+
+        if (Str::startsWith($path, 'uploads/')) {
+            $path = Str::after($path, 'uploads/');
+        }
+
+        return '/uploads/' . $path;
     }
 }

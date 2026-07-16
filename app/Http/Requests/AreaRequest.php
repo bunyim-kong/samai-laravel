@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\GoogleMapsUrlParser;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,6 +13,19 @@ class AreaRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $coordinates = GoogleMapsUrlParser::coordinatesFromUrl(
+            $this->input('google_map_url')
+        );
+
+        if ($coordinates === null) {
+            return;
+        }
+
+        $this->merge($coordinates);
+    }
+
     public function rules(): array
     {
         $area = $this->route('area');
@@ -19,6 +33,7 @@ class AreaRequest extends FormRequest
         return [
             'country_side_id' => [
                 'required',
+                'integer',
                 'exists:country_sides,id',
             ],
 
@@ -33,7 +48,8 @@ class AreaRequest extends FormRequest
                 'string',
                 'max:255',
                 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
-                Rule::unique('areas', 'slug')->ignore($area?->id),
+                Rule::unique('areas', 'slug')
+                    ->ignore($area?->id),
             ],
 
             'lat' => [
@@ -51,6 +67,7 @@ class AreaRequest extends FormRequest
             'google_map_url' => [
                 'nullable',
                 'url',
+                'max:2048',
             ],
 
             'address' => [
@@ -89,14 +106,21 @@ class AreaRequest extends FormRequest
             'facebook' => [
                 'nullable',
                 'url',
+                'max:2048',
             ],
 
             'instagram' => [
                 'nullable',
                 'url',
+                'max:2048',
             ],
 
             'is_active' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'is_recommended' => [
                 'nullable',
                 'boolean',
             ],
@@ -129,10 +153,14 @@ class AreaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'slug.regex' => 'The slug may only contain lowercase letters, numbers, and hyphens.',
+            'slug.regex' => 'The slug may only contain lowercase letters, numbers and hyphens.',
+
             'photos.max' => 'You can upload a maximum of five photos.',
-            'photos.*.image' => 'Each uploaded file must be an image.',
-            'photos.*.mimes' => 'Photos must be JPG, JPEG, PNG, or WEBP.',
+
+            'photos.*.image' => 'Every uploaded file must be an image.',
+
+            'photos.*.mimes' => 'Photos must be JPG, JPEG, PNG or WEBP.',
+
             'photos.*.max' => 'Each photo must not be larger than 5 MB.',
         ];
     }

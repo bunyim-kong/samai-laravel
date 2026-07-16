@@ -33,9 +33,9 @@ class AreaController extends Controller
             'title' => $area->title,
 
             'province' => [
-                'id' => $area->countrySide->id,
-                'name' => $area->countrySide->name,
-                'slug' => $area->countrySide->slug,
+                'id' => $area->countrySide?->id,
+                'name' => $area->countrySide?->name,
+                'slug' => $area->countrySide?->slug,
             ],
 
             'lat' => $area->lat !== null
@@ -61,8 +61,7 @@ class AreaController extends Controller
                     return [
                         'id' => $image->id,
                         'image_path' => $image->image_path,
-                        'image_url' => '/storage/'
-                            . ltrim($image->image_path, '/'),
+                        'image_url' => $image->image_url,
                         'sort_order' => $image->sort_order,
                     ];
                 })

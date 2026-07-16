@@ -58,6 +58,7 @@ class MapController extends Controller
                     'title' => $area->title,
                     'lat' => (float) $area->lat,
                     'lng' => (float) $area->lng,
+                    'is_recommended' => (bool) $area->is_recommended,
                     'image_url' => $area->image_url,
                 ];
             })->values(),

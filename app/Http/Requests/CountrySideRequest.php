@@ -14,7 +14,8 @@ class CountrySideRequest extends FormRequest
 
     public function rules(): array
     {
-        $countrySide = $this->route('countrySide');
+        $countrySide = $this->route('country_side')
+            ?? $this->route('countrySide');
 
         return [
             'name' => [

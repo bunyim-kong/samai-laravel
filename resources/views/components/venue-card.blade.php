@@ -1,69 +1,86 @@
 @php
     $sliderImages = $area->images
         ->filter(function ($image) {
-            return !empty($image->image_path);
+            return !empty($image->image_path)
+                && !empty($image->image_url);
         })
         ->sortBy('sort_order')
         ->values();
 @endphp
 
 <div class="venue-card">
-    <div class="venue-header">
-        <h2 class="venue-title">
-            {{ $area->title }}
-        </h2>
+
+    <div class="venue-card-header">
+        <div class="venue-heading">
+            <p class="venue-province">
+                {{ $area->countrySide?->name ?? 'Cambodia' }}
+            </p>
+
+            <h2 class="venue-title">
+                {{ $area->title }}
+            </h2>
+        </div>
 
         <button
             type="button"
-            class="venue-close-btn"
+            class="venue-close-button"
             data-close-venue-card
             aria-label="Close venue details"
         >
             <svg
-                width="20"
-                height="20"
+                width="21"
+                height="21"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="2.2"
+                stroke-linecap="round"
                 aria-hidden="true"
             >
-                <line
-                    x1="18"
-                    y1="6"
-                    x2="6"
-                    y2="18"
-                ></line>
-
-                <line
-                    x1="6"
-                    y1="6"
-                    x2="18"
-                    y2="18"
-                ></line>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
     </div>
 
     @if ($sliderImages->isNotEmpty())
-        <div class="slider-container">
+        <div class="venue-slider-container">
+
             @if ($sliderImages->count() > 1)
                 <button
                     id="prev"
                     type="button"
-                    class="slider-nav slider-prev"
-                    aria-label="Previous image"
+                    class="venue-slider-button venue-slider-previous"
+                    aria-label="Previous photo"
                 >
-                    <i class="fa-solid fa-angle-left"></i>
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
                 </button>
             @endif
 
-            <div id="slider" class="slider-wrapper">
+            <div
+                id="slider"
+                class="venue-slider"
+            >
                 @foreach ($sliderImages as $image)
-                    <img
-                        src="{{ '/storage/' . ltrim($image->image_path, '/') }}"
-                        alt="{{ $area->title }} photo {{ $loop->iteration }}"
-                    >
+                    <div class="venue-slide">
+                        <img
+                            src="{{ $image->image_url }}"
+                            alt="{{ $area->title }} photo {{ $loop->iteration }}"
+                            class="venue-slide-image"
+                            loading="eager"
+                        >
+                    </div>
                 @endforeach
             </div>
 
@@ -71,125 +88,300 @@
                 <button
                     id="next"
                     type="button"
-                    class="slider-nav slider-next"
-                    aria-label="Next image"
+                    class="venue-slider-button venue-slider-next"
+                    aria-label="Next photo"
                 >
-                    <i class="fa-solid fa-angle-right"></i>
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
                 </button>
             @endif
+
+            @if ($sliderImages->count() > 1)
+                <div class="venue-photo-count">
+                    {{ $sliderImages->count() }} photos
+                </div>
+            @endif
+
         </div>
     @else
-        <div class="no-venue-photo">
-            <i class="fa-solid fa-image"></i>
+        <div class="venue-no-photo">
+            <svg
+                width="34"
+                height="34"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+            >
+                <rect
+                    x="3"
+                    y="3"
+                    width="18"
+                    height="18"
+                    rx="2"
+                ></rect>
 
-            <span>
-                No photos uploaded
-            </span>
+                <circle
+                    cx="8.5"
+                    cy="8.5"
+                    r="1.5"
+                ></circle>
+
+                <polyline
+                    points="21 15 16 10 5 21"
+                ></polyline>
+            </svg>
+
+            <span>No photos uploaded</span>
         </div>
     @endif
 
-    <div class="venue-content">
-        @if ($area->address)
-            <div class="venue-info-group">
-                <span class="venue-label">
-                    Address
-                </span>
+    <div class="venue-card-content">
 
-                <p class="venue-text">
-                    {{ $area->address }}
-                </p>
-            </div>
+        @if ($area->address)
+            <section class="venue-section">
+                <h3 class="venue-section-title">
+                    Address
+                </h3>
+
+                <div class="venue-row">
+                    <div class="venue-row-icon">
+                        <svg
+                            width="17"
+                            height="17"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path
+                                d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0z"
+                            ></path>
+
+                            <circle
+                                cx="12"
+                                cy="10"
+                                r="3"
+                            ></circle>
+                        </svg>
+                    </div>
+
+                    <p class="venue-text">
+                        {{ $area->address }}
+                    </p>
+                </div>
+            </section>
         @endif
 
         @if ($area->open_hours)
-            <div class="venue-info-group">
-                <span class="venue-label">
+            <section class="venue-section">
+                <h3 class="venue-section-title">
                     Opening Hours
-                </span>
+                </h3>
 
-                <p class="venue-text">
-                    {!! nl2br(e($area->open_hours)) !!}
-                </p>
-            </div>
+                <div class="venue-row">
+                    <div class="venue-row-icon">
+                        <svg
+                            width="17"
+                            height="17"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <polyline
+                                points="12 7 12 12 15 14"
+                            ></polyline>
+                        </svg>
+                    </div>
+
+                    <p class="venue-text">
+                        {!! nl2br(e($area->open_hours)) !!}
+                    </p>
+                </div>
+            </section>
         @endif
 
         @if ($area->description)
-            <div class="venue-info-group">
-                <span class="venue-label">
-                    Description
-                </span>
+            <section class="venue-section">
+                <h3 class="venue-section-title">
+                    About
+                </h3>
 
-                <p class="venue-text venue-description">
+                <p class="venue-description">
                     {!! nl2br(e($area->description)) !!}
                 </p>
-            </div>
+            </section>
         @endif
 
         @if ($area->serves)
-            <div class="venue-info-group">
-                <span class="venue-label">
+            <section class="venue-section">
+                <h3 class="venue-section-title">
                     Samai Signature Serves
-                </span>
+                </h3>
 
-                <p class="venue-text">
+                <div class="venue-serves-box">
                     {!! nl2br(e($area->serves)) !!}
-                </p>
-            </div>
+                </div>
+            </section>
         @endif
 
         @if ($area->maps_url)
-            <div class="venue-info-group">
-                <span class="venue-label">
+            <section class="venue-section">
+                <h3 class="venue-section-title">
                     Location
-                </span>
+                </h3>
 
-                <div class="contact-item">
-                    <i class="fa-solid fa-location-dot"></i>
+                <a
+                    href="{{ $area->maps_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="venue-action-link"
+                >
+                    <span class="venue-action-icon">
+                        <svg
+                            width="17"
+                            height="17"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path
+                                d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0z"
+                            ></path>
 
-                    <a
-                        href="{{ $area->maps_url }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                            <circle
+                                cx="12"
+                                cy="10"
+                                r="3"
+                            ></circle>
+                        </svg>
+                    </span>
+
+                    <span>View on Google Maps</span>
+
+                    <svg
+                        class="venue-link-arrow"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
                     >
-                        View on Google Maps
-                    </a>
-                </div>
-            </div>
+                        <line
+                            x1="5"
+                            y1="12"
+                            x2="19"
+                            y2="12"
+                        ></line>
+
+                        <polyline
+                            points="12 5 19 12 12 19"
+                        ></polyline>
+                    </svg>
+                </a>
+            </section>
         @endif
 
         @if ($area->phone || $area->email)
-            <div class="venue-info-group">
-                <span class="venue-label">
+            <section class="venue-section">
+                <h3 class="venue-section-title">
                     Contact
-                </span>
+                </h3>
 
-                @if ($area->phone)
-                    <div class="contact-item">
-                        <i class="fa-solid fa-phone"></i>
+                <div class="venue-contact-list">
+                    @if ($area->phone)
+                        <a
+                            href="tel:{{ preg_replace('/\s+/', '', $area->phone) }}"
+                            class="venue-contact-item"
+                        >
+                            <span class="venue-contact-icon">
+                                <svg
+                                    width="17"
+                                    height="17"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2
+                                        19.79 19.79 0 0 1-8.63-3.07
+                                        19.5 19.5 0 0 1-6-6
+                                        19.79 19.79 0 0 1-3.07-8.67
+                                        A2 2 0 0 1 4.11 2h3
+                                        a2 2 0 0 1 2 1.72
+                                        12.84 12.84 0 0 0 .7 2.81
+                                        2 2 0 0 1-.45 2.11L8.09 9.91
+                                        a16 16 0 0 0 6 6l1.27-1.27
+                                        a2 2 0 0 1 2.11-.45
+                                        12.84 12.84 0 0 0 2.81.7
+                                        A2 2 0 0 1 22 16.92z"
+                                    ></path>
+                                </svg>
+                            </span>
 
-                        <a href="tel:{{ $area->phone }}">
-                            {{ $area->phone }}
+                            <span>{{ $area->phone }}</span>
                         </a>
-                    </div>
-                @endif
+                    @endif
 
-                @if ($area->email)
-                    <div class="contact-item">
-                        <i class="fa-solid fa-envelope"></i>
+                    @if ($area->email)
+                        <a
+                            href="mailto:{{ $area->email }}"
+                            class="venue-contact-item"
+                        >
+                            <span class="venue-contact-icon">
+                                <svg
+                                    width="17"
+                                    height="17"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        d="M4 4h16c1.1 0 2 .9 2 2v12
+                                        c0 1.1-.9 2-2 2H4
+                                        c-1.1 0-2-.9-2-2V6
+                                        c0-1.1.9-2 2-2z"
+                                    ></path>
 
-                        <a href="mailto:{{ $area->email }}">
-                            {{ $area->email }}
+                                    <polyline
+                                        points="22,6 12,13 2,6"
+                                    ></polyline>
+                                </svg>
+                            </span>
+
+                            <span>{{ $area->email }}</span>
                         </a>
-                    </div>
-                @endif
-            </div>
+                    @endif
+                </div>
+            </section>
         @endif
 
         @if ($area->instagram || $area->facebook)
-            <div class="venue-info-group">
-                <span class="venue-label">
+            <section class="venue-section venue-social-section">
+                <h3 class="venue-section-title">
                     Follow Us
-                </span>
+                </h3>
 
                 <div class="venue-social-links">
                     @if ($area->instagram)
@@ -199,7 +391,27 @@
                             rel="noopener noreferrer"
                             class="venue-social-link"
                         >
-                            Instagram
+                            <span>Instagram</span>
+
+                            <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <line
+                                    x1="7"
+                                    y1="17"
+                                    x2="17"
+                                    y2="7"
+                                ></line>
+
+                                <polyline
+                                    points="7 7 17 7 17 17"
+                                ></polyline>
+                            </svg>
                         </a>
                     @endif
 
@@ -210,269 +422,427 @@
                             rel="noopener noreferrer"
                             class="venue-social-link"
                         >
-                            Facebook
+                            <span>Facebook</span>
+
+                            <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <line
+                                    x1="7"
+                                    y1="17"
+                                    x2="17"
+                                    y2="7"
+                                ></line>
+
+                                <polyline
+                                    points="7 7 17 7 17 17"
+                                ></polyline>
+                            </svg>
                         </a>
                     @endif
                 </div>
-            </div>
+            </section>
         @endif
+
     </div>
 </div>
 
 <style>
     .venue-card {
         position: relative;
-        min-height: 100%;
         width: 100%;
-        padding: 24px 24px 28px;
+        min-height: 100%;
         box-sizing: border-box;
+        padding: 24px;
         background: #ffffff;
-        color: #2d241c;
+        color: #30271f;
+        font-family: 'Montserrat', sans-serif;
     }
 
-    .venue-header {
-        position: relative;
+    .venue-card-header {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 12px;
+        gap: 14px;
         margin-bottom: 20px;
+    }
+
+    .venue-heading {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .venue-province {
+        margin: 0 0 6px;
+        color: #a78460;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
     }
 
     .venue-title {
         margin: 0;
-        padding-right: 8px;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 24px;
-        line-height: 1.25;
-        font-weight: 700;
         color: #2d241c;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
     }
 
-    .venue-close-btn {
+    .venue-close-button {
         position: relative;
-        z-index: 20;
-        flex: 0 0 auto;
-        width: 38px;
-        height: 38px;
-        padding: 0;
-        border: none;
-        border-radius: 50%;
-        background: #f4efe9;
-        color: #6b5a4a;
-        cursor: pointer;
+        z-index: 30;
         display: flex;
+        flex: 0 0 auto;
         align-items: center;
         justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid #ebe2d8;
+        border-radius: 50%;
+        background: #f7f3ef;
+        color: #6b5846;
+        cursor: pointer;
         transition:
-            color .2s ease,
             background .2s ease,
+            color .2s ease,
+            border-color .2s ease,
             transform .2s ease;
     }
 
-    .venue-close-btn:hover {
-        color: #ffffff;
+    .venue-close-button:hover {
+        border-color: #b7936e;
         background: #b7936e;
+        color: #ffffff;
         transform: rotate(90deg);
     }
 
-    .venue-close-btn svg {
+    .venue-close-button svg {
         pointer-events: none;
     }
 
-    .slider-container {
+    .venue-slider-container {
         position: relative;
+        width: 100%;
         margin-bottom: 24px;
+        overflow: hidden;
+        border-radius: 20px;
+        background: #eee9e4;
+        box-shadow: 0 8px 22px rgba(45, 36, 28, .12);
     }
 
-    .slider-wrapper {
+    .venue-slider {
         display: flex;
         width: 100%;
-        overflow: hidden;
+        overflow-x: hidden;
         scroll-behavior: smooth;
-        border-radius: 18px;
-        background: #eeeeee;
+        scroll-snap-type: x mandatory;
     }
 
-    .slider-wrapper img {
-        display: block;
+    .venue-slide {
         flex: 0 0 100%;
         width: 100%;
-        height: 230px;
+        min-width: 100%;
+        height: 240px;
+        scroll-snap-align: start;
+        background: #eee9e4;
+    }
+
+    .venue-slide-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
         object-fit: cover;
     }
 
-    .slider-nav {
+    .venue-slider-button {
         position: absolute;
         top: 50%;
-        z-index: 10;
-        transform: translateY(-50%);
-        width: 34px;
-        height: 34px;
-        padding: 0;
-        border: none;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, .5);
-        color: #ffffff;
-        cursor: pointer;
+        z-index: 15;
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        border: 1px solid rgba(255, 255, 255, .45);
+        border-radius: 50%;
+        background: rgba(30, 25, 21, .58);
+        color: #ffffff;
+        cursor: pointer;
+        transform: translateY(-50%);
+        backdrop-filter: blur(6px);
         transition:
             background .2s ease,
             transform .2s ease;
     }
 
-    .slider-nav:hover {
-        background: rgba(0, 0, 0, .75);
+    .venue-slider-button:hover {
+        background: rgba(30, 25, 21, .85);
     }
 
-    .slider-nav:active {
+    .venue-slider-button:active {
         transform: translateY(-50%) scale(.94);
     }
 
-    .slider-prev {
+    .venue-slider-previous {
         left: 12px;
     }
 
-    .slider-next {
+    .venue-slider-next {
         right: 12px;
     }
 
-    .no-venue-photo {
-        height: 230px;
-        margin-bottom: 24px;
-        border-radius: 18px;
-        background: #f2eee9;
-        color: #a18e7b;
+    .venue-photo-count {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        z-index: 12;
+        padding: 6px 10px;
+        border: 1px solid rgba(255, 255, 255, .28);
+        border-radius: 999px;
+        background: rgba(25, 20, 16, .58);
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .03em;
+        backdrop-filter: blur(5px);
+    }
+
+    .venue-no-photo {
         display: flex;
         flex-direction: column;
-        gap: 10px;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        height: 230px;
+        margin-bottom: 24px;
+        border: 1px dashed #d9c9b8;
+        border-radius: 20px;
+        background: #f5f1ed;
+        color: #a28f7c;
+        gap: 10px;
     }
 
-    .no-venue-photo i {
-        font-size: 30px;
-    }
-
-    .no-venue-photo span {
-        font-family: 'Montserrat', sans-serif;
+    .venue-no-photo span {
         font-size: 13px;
+        font-weight: 500;
     }
 
-    .venue-content {
+    .venue-card-content {
         display: flex;
         flex-direction: column;
-        gap: 16px;
     }
 
-    .venue-info-group {
-        border-bottom: 1px solid rgba(183, 147, 110, .15);
-        padding-bottom: 14px;
+    .venue-section {
+        padding: 17px 0;
+        border-bottom: 1px solid #eee7df;
     }
 
-    .venue-info-group:last-child {
-        border-bottom: none;
+    .venue-section:first-child {
+        padding-top: 0;
+    }
+
+    .venue-section:last-child {
         padding-bottom: 0;
+        border-bottom: 0;
     }
 
-    .venue-label {
-        display: block;
-        margin-bottom: 5px;
-        font-family: 'Montserrat', sans-serif;
+    .venue-section-title {
+        margin: 0 0 10px;
+        color: #a78460;
         font-size: 10px;
         font-weight: 700;
+        letter-spacing: .14em;
         text-transform: uppercase;
-        letter-spacing: 1.2px;
-        color: #b7936e;
+    }
+
+    .venue-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+    }
+
+    .venue-row-icon {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        margin-top: 1px;
+        border-radius: 9px;
+        background: #f2e9df;
+        color: #a78460;
     }
 
     .venue-text {
         margin: 0;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 14px;
-        line-height: 1.6;
-        color: #3d342c;
+        padding-top: 4px;
+        color: #453a31;
+        font-size: 13.5px;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
     }
 
     .venue-description {
+        margin: 0;
+        color: #51463d;
         font-size: 13.5px;
-        line-height: 1.7;
-        color: #4a3f36;
+        line-height: 1.75;
     }
 
-    .contact-item {
+    .venue-serves-box {
+        padding: 13px 15px;
+        border-left: 3px solid #b7936e;
+        border-radius: 0 12px 12px 0;
+        background: #f7f2ed;
+        color: #45382d;
+        font-size: 13.5px;
+        line-height: 1.65;
+    }
+
+    .venue-action-link {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 12px 14px;
+        border: 1px solid #eadfd4;
+        border-radius: 13px;
+        background: #fbf9f7;
+        color: #40342a;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+            border-color .2s ease,
+            background .2s ease,
+            color .2s ease;
+    }
+
+    .venue-action-link:hover {
+        border-color: #b7936e;
+        background: #f4ece4;
+        color: #8b6847;
+    }
+
+    .venue-action-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a78460;
+    }
+
+    .venue-link-arrow {
+        margin-left: auto;
+    }
+
+    .venue-contact-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .venue-contact-item {
         display: flex;
         align-items: flex-start;
-        gap: 10px;
-        margin-top: 8px;
-        font-family: 'Montserrat', sans-serif;
+        gap: 11px;
+        color: #453a31;
         font-size: 13px;
-        color: #3d342c;
-    }
-
-    .contact-item i {
-        width: 16px;
-        margin-top: 3px;
-        color: #b7936e;
-    }
-
-    .contact-item a {
-        color: inherit;
+        line-height: 1.55;
         text-decoration: none;
         overflow-wrap: anywhere;
         word-break: break-word;
     }
 
-    .contact-item a:hover {
-        color: #b7936e;
+    .venue-contact-item:hover {
+        color: #9d7853;
+    }
+
+    .venue-contact-icon {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        width: 29px;
+        height: 29px;
+        border-radius: 9px;
+        background: #f2e9df;
+        color: #a78460;
+    }
+
+    .venue-social-section {
+        padding-bottom: 4px;
     }
 
     .venue-social-links {
         display: flex;
-        gap: 16px;
         flex-wrap: wrap;
+        gap: 10px;
     }
 
     .venue-social-link {
-        color: #b7936e;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 13px;
-        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 13px;
+        border: 1px solid #e3d6c9;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #8f6c4b;
+        font-size: 12px;
+        font-weight: 600;
         text-decoration: none;
-        padding-bottom: 3px;
-        border-bottom: 2px solid transparent;
         transition:
-            color .2s ease,
-            border-color .2s ease;
+            background .2s ease,
+            border-color .2s ease,
+            color .2s ease;
     }
 
     .venue-social-link:hover {
-        color: #8a6f4e;
-        border-bottom-color: #b7936e;
+        border-color: #b7936e;
+        background: #b7936e;
+        color: #ffffff;
     }
 
     @media (max-width: 480px) {
         .venue-card {
-            padding: 20px 18px 24px;
+            padding: 19px 17px 24px;
+        }
+
+        .venue-card-header {
+            margin-bottom: 17px;
         }
 
         .venue-title {
-            font-size: 20px;
+            font-size: 21px;
         }
 
-        .venue-close-btn {
+        .venue-close-button {
+            width: 38px;
+            height: 38px;
+        }
+
+        .venue-slide {
+            height: 220px;
+        }
+
+        .venue-slider-button {
             width: 36px;
             height: 36px;
         }
 
-        .slider-wrapper img,
-        .no-venue-photo {
-            height: 220px;
-        }
-
-        .venue-text {
+        .venue-text,
+        .venue-description,
+        .venue-serves-box {
             font-size: 13px;
         }
     }

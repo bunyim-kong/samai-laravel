@@ -90,13 +90,35 @@
         }
 
         .pin-marker {
-            width: 34px;
-            height: 34px;
+            width: 24px;
+            height: 24px;
             background: var(--brand-brown);
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
             border: 2px solid #ffffff;
-            box-shadow: -2px 2px 6px rgba(0, 0, 0, .35);
+            box-shadow: -2px 2px 5px rgba(0, 0, 0, .32);
+        }
+
+        .pin-marker.is-recommended {
+            width: 28px;
+            height: 28px;
+            background: #c2a06d;
+            border: 3px solid #ffffff;
+            box-shadow:
+                -2px 2px 7px rgba(0, 0, 0, .38),
+                0 0 0 4px rgba(194, 160, 109, .28);
+        }
+
+        .pin-marker.is-recommended::after {
+            content: '';
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            top: 50%;
+            left: 50%;
+            border-radius: 999px;
+            background: #ffffff;
+            transform: translate(-50%, -50%);
         }
 
         .venue-label-tooltip {
@@ -249,6 +271,7 @@
                 'title' => $area->title,
                 'lat' => (float) $area->lat,
                 'lng' => (float) $area->lng,
+                'is_recommended' => (bool) $area->is_recommended,
             ];
         })
         ->values()
@@ -335,15 +358,23 @@
         }
     ).addTo(map);
 
-    const markerIcon = L.divIcon({
-        className: 'custom-pin',
-        html: '<div class="pin-marker"></div>',
-        iconSize: [34, 34],
-        iconAnchor: [17, 34],
-        popupAnchor: [0, -26]
-    });
+    function createMarkerIcon(isRecommended) {
+        return L.divIcon({
+            className: 'custom-pin',
+            html: '<div class="pin-marker' +
+                (isRecommended ? ' is-recommended' : '') +
+                '"></div>',
+            iconSize: isRecommended ? [28, 28] : [24, 24],
+            iconAnchor: isRecommended ? [14, 28] : [12, 24],
+            popupAnchor: [0, isRecommended ? -24 : -20]
+        });
+    }
 
     const labelZoom = 13;
+    const regularMarkerZoom = 13;
+    const hasRecommendedMarkers = mapData.markers.some(function (item) {
+        return item.is_recommended;
+    });
     const markerItems = [];
     const bounds = [];
 
@@ -351,9 +382,9 @@
         const marker = L.marker(
             [item.lat, item.lng],
             {
-                icon: markerIcon
+                icon: createMarkerIcon(item.is_recommended)
             }
-        ).addTo(map);
+        );
 
         marker.bindTooltip(item.title, {
             permanent: true,
@@ -374,6 +405,7 @@
             title: item.title,
             lat: item.lat,
             lng: item.lng,
+            isRecommended: item.is_recommended,
             marker: marker
         });
 
@@ -383,10 +415,24 @@
         ]);
     });
 
-    function updateLabels() {
-        const visible = map.getZoom() >= labelZoom;
+    function updateMarkerVisibility() {
+        const zoom = map.getZoom();
+        const showRegularMarkers = zoom >= regularMarkerZoom;
+        const showLabels = zoom >= labelZoom;
 
         markerItems.forEach(function (item) {
+            const shouldShowMarker = !hasRecommendedMarkers ||
+                item.isRecommended ||
+                showRegularMarkers;
+
+            if (shouldShowMarker && !map.hasLayer(item.marker)) {
+                item.marker.addTo(map);
+            }
+
+            if (!shouldShowMarker && map.hasLayer(item.marker)) {
+                item.marker.removeFrom(map);
+            }
+
             const tooltip = item.marker.getTooltip();
 
             if (!tooltip) {
@@ -398,7 +444,7 @@
             if (element) {
                 element.classList.toggle(
                     'is-visible',
-                    visible
+                    showLabels && shouldShowMarker
                 );
             }
         });
@@ -415,10 +461,11 @@
         );
     }
 
-    map.on('zoomend', updateLabels);
+    map.on('zoomend', updateMarkerVisibility);
 
     map.whenReady(function () {
-        setTimeout(updateLabels, 50);
+        updateMarkerVisibility();
+        setTimeout(updateMarkerVisibility, 50);
     });
 
     const searchInput = document.getElementById(
