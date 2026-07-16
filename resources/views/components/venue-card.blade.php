@@ -1,7 +1,8 @@
 @php
     $sliderImages = $area->images
         ->filter(function ($image) {
-            return !empty($image->image_path);
+            return !empty($image->image_path)
+                && !empty($image->image_url);
         })
         ->sortBy('sort_order')
         ->values();
@@ -28,19 +29,8 @@
                 stroke-width="2"
                 aria-hidden="true"
             >
-                <line
-                    x1="18"
-                    y1="6"
-                    x2="6"
-                    y2="18"
-                ></line>
-
-                <line
-                    x1="6"
-                    y1="6"
-                    x2="18"
-                    y2="18"
-                ></line>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
     </div>
@@ -52,7 +42,7 @@
                     id="prev"
                     type="button"
                     class="slider-nav slider-prev"
-                    aria-label="Previous image"
+                    aria-label="Previous photo"
                 >
                     <i class="fa-solid fa-angle-left"></i>
                 </button>
@@ -60,10 +50,15 @@
 
             <div id="slider" class="slider-wrapper">
                 @foreach ($sliderImages as $image)
-                    <img
-                        src="{{ '/storage/' . ltrim($image->image_path, '/') }}"
-                        alt="{{ $area->title }} photo {{ $loop->iteration }}"
-                    >
+                    <div class="slider-slide">
+                        <img
+                            src="{{ $image->image_url }}"
+                            alt="{{ $area->title }} photo {{ $loop->iteration }}"
+                            class="venue-slider-image"
+                            loading="eager"
+                            decoding="async"
+                        >
+                    </div>
                 @endforeach
             </div>
 
@@ -72,7 +67,7 @@
                     id="next"
                     type="button"
                     class="slider-nav slider-next"
-                    aria-label="Next image"
+                    aria-label="Next photo"
                 >
                     <i class="fa-solid fa-angle-right"></i>
                 </button>
@@ -222,12 +217,13 @@
 <style>
     .venue-card {
         position: relative;
-        min-height: 100%;
         width: 100%;
-        padding: 24px 24px 28px;
+        min-height: 100%;
         box-sizing: border-box;
+        padding: 24px 24px 28px;
         background: #ffffff;
         color: #2d241c;
+        font-family: 'Montserrat', sans-serif;
     }
 
     .venue-header {
@@ -242,28 +238,27 @@
     .venue-title {
         margin: 0;
         padding-right: 8px;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 24px;
-        line-height: 1.25;
-        font-weight: 700;
         color: #2d241c;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.25;
     }
 
     .venue-close-btn {
         position: relative;
         z-index: 20;
+        display: flex;
         flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
         width: 38px;
         height: 38px;
         padding: 0;
-        border: none;
+        border: 0;
         border-radius: 50%;
         background: #f4efe9;
         color: #6b5a4a;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         transition:
             color .2s ease,
             background .2s ease,
@@ -271,8 +266,8 @@
     }
 
     .venue-close-btn:hover {
-        color: #ffffff;
         background: #b7936e;
+        color: #ffffff;
         transform: rotate(90deg);
     }
 
@@ -282,23 +277,33 @@
 
     .slider-container {
         position: relative;
+        width: 100%;
         margin-bottom: 24px;
     }
 
     .slider-wrapper {
         display: flex;
         width: 100%;
-        overflow: hidden;
-        scroll-behavior: smooth;
+        overflow-x: hidden;
         border-radius: 18px;
         background: #eeeeee;
+        scroll-behavior: smooth;
     }
 
-    .slider-wrapper img {
+    .slider-slide {
         display: block;
         flex: 0 0 100%;
         width: 100%;
+        min-width: 100%;
         height: 230px;
+        background: #eeeeee;
+    }
+
+    .venue-slider-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
         object-fit: cover;
     }
 
@@ -306,25 +311,25 @@
         position: absolute;
         top: 50%;
         z-index: 10;
-        transform: translateY(-50%);
-        width: 34px;
-        height: 34px;
-        padding: 0;
-        border: none;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, .5);
-        color: #ffffff;
-        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, .55);
+        color: #ffffff;
+        cursor: pointer;
+        transform: translateY(-50%);
         transition:
             background .2s ease,
             transform .2s ease;
     }
 
     .slider-nav:hover {
-        background: rgba(0, 0, 0, .75);
+        background: rgba(0, 0, 0, .8);
     }
 
     .slider-nav:active {
@@ -340,16 +345,17 @@
     }
 
     .no-venue-photo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
         height: 230px;
         margin-bottom: 24px;
         border-radius: 18px;
         background: #f2eee9;
         color: #a18e7b;
-        display: flex;
-        flex-direction: column;
         gap: 10px;
-        align-items: center;
-        justify-content: center;
     }
 
     .no-venue-photo i {
@@ -357,7 +363,6 @@
     }
 
     .no-venue-photo span {
-        font-family: 'Montserrat', sans-serif;
         font-size: 13px;
     }
 
@@ -368,38 +373,36 @@
     }
 
     .venue-info-group {
-        border-bottom: 1px solid rgba(183, 147, 110, .15);
         padding-bottom: 14px;
+        border-bottom: 1px solid rgba(183, 147, 110, .15);
     }
 
     .venue-info-group:last-child {
-        border-bottom: none;
         padding-bottom: 0;
+        border-bottom: 0;
     }
 
     .venue-label {
         display: block;
         margin-bottom: 5px;
-        font-family: 'Montserrat', sans-serif;
+        color: #b7936e;
         font-size: 10px;
         font-weight: 700;
-        text-transform: uppercase;
         letter-spacing: 1.2px;
-        color: #b7936e;
+        text-transform: uppercase;
     }
 
     .venue-text {
         margin: 0;
-        font-family: 'Montserrat', sans-serif;
+        color: #3d342c;
         font-size: 14px;
         line-height: 1.6;
-        color: #3d342c;
     }
 
     .venue-description {
+        color: #4a3f36;
         font-size: 13.5px;
         line-height: 1.7;
-        color: #4a3f36;
     }
 
     .contact-item {
@@ -407,9 +410,8 @@
         align-items: flex-start;
         gap: 10px;
         margin-top: 8px;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 13px;
         color: #3d342c;
+        font-size: 13px;
     }
 
     .contact-item i {
@@ -431,26 +433,22 @@
 
     .venue-social-links {
         display: flex;
-        gap: 16px;
         flex-wrap: wrap;
+        gap: 16px;
     }
 
     .venue-social-link {
+        padding-bottom: 3px;
+        border-bottom: 2px solid transparent;
         color: #b7936e;
-        font-family: 'Montserrat', sans-serif;
         font-size: 13px;
         font-weight: 500;
         text-decoration: none;
-        padding-bottom: 3px;
-        border-bottom: 2px solid transparent;
-        transition:
-            color .2s ease,
-            border-color .2s ease;
     }
 
     .venue-social-link:hover {
-        color: #8a6f4e;
         border-bottom-color: #b7936e;
+        color: #8a6f4e;
     }
 
     @media (max-width: 480px) {
@@ -462,12 +460,7 @@
             font-size: 20px;
         }
 
-        .venue-close-btn {
-            width: 36px;
-            height: 36px;
-        }
-
-        .slider-wrapper img,
+        .slider-slide,
         .no-venue-photo {
             height: 220px;
         }
