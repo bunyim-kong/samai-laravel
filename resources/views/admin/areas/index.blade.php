@@ -30,6 +30,74 @@
     </a>
 </div>
 
+<form
+    id="areaFilters"
+    method="GET"
+    action="{{ route('admin.areas.index') }}"
+    class="mb-6"
+>
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-4">
+        <div>
+            <label
+                for="search"
+                class="block text-sm font-semibold mb-2 text-[#3a3028]"
+            >
+                Search
+            </label>
+
+            <div class="relative">
+                <i
+                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+                ></i>
+
+                <input
+                    type="search"
+                    id="search"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search title, slug, address, description or serves"
+                    autocomplete="off"
+                    class="w-full rounded-xl bg-[#fffdfb] border border-[#ddd4ca] pl-11 pr-4 py-3 text-sm focus:border-[#b7936e] focus:ring-[#b7936e]"
+                >
+            </div>
+        </div>
+
+        <div>
+            <label
+                for="country_side_id"
+                class="block text-sm font-semibold mb-2 text-[#3a3028]"
+            >
+                Country Side
+            </label>
+
+            <div class="relative">
+                <select
+                    id="country_side_id"
+                    name="country_side_id"
+                    class="w-full appearance-none rounded-xl bg-[#fffdfb] border border-[#ddd4ca] pl-4 pr-12 py-3 text-sm focus:border-[#b7936e] focus:ring-[#b7936e]"
+                >
+                    <option value="">
+                        All country sides
+                    </option>
+
+                    @foreach ($countrySides as $countrySide)
+                        <option
+                            value="{{ $countrySide->id }}"
+                            @selected((string) request('country_side_id') === (string) $countrySide->id)
+                        >
+                            {{ $countrySide->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <i
+                    class="fa-solid fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+                ></i>
+            </div>
+        </div>
+    </div>
+</form>
+
 <div
     class="bg-white rounded-2xl border border-[#e4ddd5] shadow-sm overflow-hidden"
 >
@@ -211,3 +279,23 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const areaFilters = document.getElementById('areaFilters');
+    const areaSearch = document.getElementById('search');
+    const countrySideFilter = document.getElementById('country_side_id');
+    let areaSearchTimer;
+
+    function submitAreaFilters() {
+        areaFilters?.requestSubmit();
+    }
+
+    areaSearch?.addEventListener('input', () => {
+        clearTimeout(areaSearchTimer);
+        areaSearchTimer = setTimeout(submitAreaFilters, 450);
+    });
+
+    countrySideFilter?.addEventListener('change', submitAreaFilters);
+</script>
+@endpush
