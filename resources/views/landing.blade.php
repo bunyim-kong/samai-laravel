@@ -16,7 +16,7 @@
     .map-frame {
         aspect-ratio: 677 / 573;
         width: min(94vw, calc(48dvh * 677 / 573));
-        margin-top: 12px;
+        margin-top: 4px;
     }
 
     .map-frame > img {
@@ -103,7 +103,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-top: -80px;
+            margin-top: -95px;
             padding-bottom: 18px;
         }
 

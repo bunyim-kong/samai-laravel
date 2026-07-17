@@ -100,25 +100,38 @@
         }
 
         .pin-marker.is-recommended {
-            width: 28px;
-            height: 28px;
-            background: #c2a06d;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #d9b46f 0%, #a97835 100%);
             border: 3px solid #ffffff;
             box-shadow:
-                -2px 2px 7px rgba(0, 0, 0, .38),
-                0 0 0 4px rgba(194, 160, 109, .28);
+                -3px 3px 9px rgba(0, 0, 0, .4),
+                0 0 0 5px rgba(194, 160, 109, .28),
+                0 0 18px rgba(217, 180, 111, .38);
         }
 
         .pin-marker.is-recommended::after {
             content: '';
             position: absolute;
-            width: 7px;
-            height: 7px;
+            width: 14px;
+            height: 14px;
             top: 50%;
             left: 50%;
-            border-radius: 999px;
             background: #ffffff;
-            transform: translate(-50%, -50%);
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 56%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 56%,
+                2% 35%,
+                39% 35%
+            );
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25));
+            transform: translate(-50%, -50%) rotate(45deg);
         }
 
         .venue-label-tooltip {
@@ -364,13 +377,13 @@
             html: '<div class="pin-marker' +
                 (isRecommended ? ' is-recommended' : '') +
                 '"></div>',
-            iconSize: isRecommended ? [28, 28] : [24, 24],
-            iconAnchor: isRecommended ? [14, 28] : [12, 24],
-            popupAnchor: [0, isRecommended ? -24 : -20]
+            iconSize: isRecommended ? [32, 32] : [24, 24],
+            iconAnchor: isRecommended ? [16, 32] : [12, 24],
+            popupAnchor: [0, isRecommended ? -28 : -20]
         });
     }
 
-    const labelZoom = 13;
+    const labelZoom = 12;
     const regularMarkerZoom = 13;
     const hasRecommendedMarkers = mapData.markers.some(function (item) {
         return item.is_recommended;

@@ -11,19 +11,19 @@
 @section('content')
 <div class="flex flex-wrap gap-3 mb-6">
     <a
-        href="{{ route('admin.areas.edit', $area) }}"
-        class="inline-flex items-center gap-2 bg-[#b7936e] px-5 py-3 rounded-xl font-semibold text-sm"
-    >
-        <i class="fa-solid fa-pen"></i>
-        Edit
-    </a>
-
-    <a
         href="{{ route('admin.areas.index') }}"
         class="inline-flex items-center gap-2 border border-[#d9d1c8] px-5 py-3 rounded-xl font-semibold text-sm"
     >
         <i class="fa-solid fa-arrow-left"></i>
         Back
+    </a>
+
+    <a
+        href="{{ route('admin.areas.edit', $area) }}"
+        class="inline-flex items-center gap-2 bg-[#b7936e] px-5 py-3 rounded-xl font-semibold text-sm"
+    >
+        <i class="fa-solid fa-pen"></i>
+        Edit
     </a>
 </div>
 
