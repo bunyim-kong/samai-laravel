@@ -88,21 +88,6 @@
                                 <div
                                     class="flex items-center gap-3"
                                 >
-                                    @if ($firstImage)
-                                        <img
-                                            src="{{ $firstImage->image_url }}"
-                                            alt="{{ $area->title }}"
-                                            class="w-12 h-12 rounded-xl object-cover"
-                                        >
-                                    @else
-                                        <div
-                                            class="w-12 h-12 rounded-xl bg-[#f1e7dc] text-[#9d7a54] flex items-center justify-center"
-                                        >
-                                            <i
-                                                class="fa-solid fa-image"
-                                            ></i>
-                                        </div>
-                                    @endif
 
                                     <div>
                                         <p class="font-semibold">

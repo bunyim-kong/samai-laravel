@@ -12,10 +12,6 @@
 
     <div class="venue-card-header">
         <div class="venue-heading">
-            <p class="venue-province">
-                {{ $area->countrySide?->name ?? 'Cambodia' }}
-            </p>
-
             <h2 class="venue-title">
                 {{ $area->title }}
             </h2>
@@ -106,12 +102,6 @@
                 </button>
             @endif
 
-            @if ($sliderImages->count() > 1)
-                <div class="venue-photo-count">
-                    {{ $sliderImages->count() }} photos
-                </div>
-            @endif
-
         </div>
     @else
         <div class="venue-no-photo">
@@ -155,27 +145,6 @@
                 </h3>
 
                 <div class="venue-row">
-                    <div class="venue-row-icon">
-                        <svg
-                            width="17"
-                            height="17"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0z"
-                            ></path>
-
-                            <circle
-                                cx="12"
-                                cy="10"
-                                r="3"
-                            ></circle>
-                        </svg>
-                    </div>
-
                     <p class="venue-text">
                         {{ $area->address }}
                     </p>
@@ -190,27 +159,6 @@
                 </h3>
 
                 <div class="venue-row">
-                    <div class="venue-row-icon">
-                        <svg
-                            width="17"
-                            height="17"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <circle
-                                cx="12"
-                                cy="12"
-                                r="9"
-                            ></circle>
-
-                            <polyline
-                                points="12 7 12 12 15 14"
-                            ></polyline>
-                        </svg>
-                    </div>
-
                     <p class="venue-text">
                         {!! nl2br(e($area->open_hours)) !!}
                     </p>
@@ -313,31 +261,6 @@
                             href="tel:{{ preg_replace('/\s+/', '', $area->phone) }}"
                             class="venue-contact-item"
                         >
-                            <span class="venue-contact-icon">
-                                <svg
-                                    width="17"
-                                    height="17"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path
-                                        d="M22 16.92v3a2 2 0 0 1-2.18 2
-                                        19.79 19.79 0 0 1-8.63-3.07
-                                        19.5 19.5 0 0 1-6-6
-                                        19.79 19.79 0 0 1-3.07-8.67
-                                        A2 2 0 0 1 4.11 2h3
-                                        a2 2 0 0 1 2 1.72
-                                        12.84 12.84 0 0 0 .7 2.81
-                                        2 2 0 0 1-.45 2.11L8.09 9.91
-                                        a16 16 0 0 0 6 6l1.27-1.27
-                                        a2 2 0 0 1 2.11-.45
-                                        12.84 12.84 0 0 0 2.81.7
-                                        A2 2 0 0 1 22 16.92z"
-                                    ></path>
-                                </svg>
-                            </span>
 
                             <span>{{ $area->phone }}</span>
                         </a>
@@ -348,27 +271,6 @@
                             href="mailto:{{ $area->email }}"
                             class="venue-contact-item"
                         >
-                            <span class="venue-contact-icon">
-                                <svg
-                                    width="17"
-                                    height="17"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path
-                                        d="M4 4h16c1.1 0 2 .9 2 2v12
-                                        c0 1.1-.9 2-2 2H4
-                                        c-1.1 0-2-.9-2-2V6
-                                        c0-1.1.9-2 2-2z"
-                                    ></path>
-
-                                    <polyline
-                                        points="22,6 12,13 2,6"
-                                    ></polyline>
-                                </svg>
-                            </span>
 
                             <span>{{ $area->email }}</span>
                         </a>
