@@ -164,19 +164,7 @@
 
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-
-                                        @if ($area->image_url)
-                                            <img
-                                                src="{{ $area->image_url }}"
-                                                alt="{{ $area->title }}"
-                                                class="w-11 h-11 rounded-xl object-cover"
-                                            >
-                                        @else
-                                            <div class="w-11 h-11 rounded-xl bg-[#f1e7dc] text-[#9d7a54] flex items-center justify-center">
-                                                <i class="fa-solid fa-image"></i>
-                                            </div>
-                                        @endif
-
+                                        
                                         <div>
                                             <p class="font-semibold text-sm">
                                                 {{ $area->title }}

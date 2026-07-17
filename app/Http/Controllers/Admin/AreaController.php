@@ -7,6 +7,7 @@ use App\Http\Requests\AreaRequest;
 use App\Models\Area;
 use App\Models\CountrySide;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -17,19 +18,35 @@ use Throwable;
 
 class AreaController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $countrySides = CountrySide::query()
+            ->orderBy('name')
+            ->get();
+
         $areas = Area::query()
             ->with([
                 'countrySide',
                 'images',
             ])
+            ->search($request->input('search'))
+            ->when(
+                $request->filled('country_side_id'),
+                fn ($query) => $query->where(
+                    'country_side_id',
+                    $request->integer('country_side_id')
+                )
+            )
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view(
             'admin.areas.index',
-            compact('areas')
+            compact(
+                'areas',
+                'countrySides'
+            )
         );
     }
 
