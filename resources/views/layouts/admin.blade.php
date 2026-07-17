@@ -198,19 +198,6 @@
                     </div>
 
                 </div>
-
-                <div class="flex items-center gap-3">
-
-                    <a
-                        href="{{ route('admin.areas.create') }}"
-                        class="hidden sm:inline-flex items-center gap-2 bg-[#b7936e] hover:bg-[#a5825e] text-[#2d241c] px-4 py-2.5 rounded-xl font-semibold text-sm transition"
-                    >
-                        <i class="fa-solid fa-plus"></i>
-                        Add Area
-                    </a>
-
-                </div>
-
             </div>
         </header>
 
