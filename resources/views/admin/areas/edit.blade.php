@@ -1,12 +1,10 @@
 @extends('layouts.admin')
-
-@section('title', 'Add Area - Samai Admin')
-@section('page-title', 'Add Area')
+@section('title', 'Edit Area - Samai Admin')
+@section('page-title', 'Edit Area')
 @section(
     'page-description',
-    'Create a venue or map location'
+    'Update venue or map location details'
 )
-
 @section('content')
 <div class="max-w-6xl">
     <div
@@ -14,10 +12,11 @@
     >
         <form
             method="POST"
-            action="{{ route('admin.areas.store') }}"
+            action="{{ route('admin.areas.update', $area) }}"
             enctype="multipart/form-data"
         >
             @csrf
+            @method('PUT')
 
             @include('admin.areas.form')
 
@@ -39,7 +38,7 @@
                         class="fa-solid fa-floppy-disk"
                     ></i>
 
-                    Save Area
+                    Update Area
                 </button>
             </div>
         </form>
