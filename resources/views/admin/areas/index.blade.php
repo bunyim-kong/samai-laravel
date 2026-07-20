@@ -107,8 +107,8 @@
             </h4>
         </div>
     @else
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[950px]">
+        <div class="overflow-hidden">
+            <table class="admin-responsive-table w-full">
                 <thead class="bg-[#faf8f5]">
                     <tr
                         class="text-left text-xs uppercase tracking-wide text-gray-500"
@@ -168,6 +168,7 @@
                             </td>
 
                             <td
+                                data-label="Country Side"
                                 class="px-6 py-4 text-sm text-gray-600"
                             >
                                 {{ $area->countrySide?->name
@@ -175,6 +176,7 @@
                             </td>
 
                             <td
+                                data-label="Coordinates"
                                 class="px-6 py-4 text-sm text-gray-600"
                             >
                                 @if (
@@ -192,7 +194,7 @@
                                 @endif
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td data-label="Status" class="px-6 py-4">
                                 @if ($area->is_active)
                                     <span
                                         class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700"
@@ -208,7 +210,11 @@
                                 @endif
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td
+                                data-label="Actions"
+                                data-actions
+                                class="px-6 py-4"
+                            >
                                 <div
                                     class="flex justify-end gap-2"
                                 >

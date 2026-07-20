@@ -207,19 +207,21 @@
                         Photo {{ $index + 1 }}
                     </label>
 
-                    <div
-                        class="w-full aspect-square rounded-xl overflow-hidden bg-white border border-[#e4ddd5] flex items-center justify-center mb-3"
+                    <label
+                        for="photos_{{ $index }}"
+                        class="group relative w-full aspect-square rounded-xl overflow-hidden bg-white border border-[#e4ddd5] flex items-center justify-center mb-3 cursor-pointer transition hover:border-[#b7936e] hover:ring-2 hover:ring-[#b7936e]/20"
+                        title="Choose photo {{ $index + 1 }}"
                     >
                         <img
                             id="previewImage{{ $index }}"
                             src="{{ $existingImage?->image_url ?? '' }}"
                             alt="Photo {{ $index + 1 }}"
-                            class="{{ $existingImage ? '' : 'hidden' }} w-full h-full object-cover"
+                            class="{{ $existingImage ? '' : 'hidden' }} w-full h-full object-cover pointer-events-none"
                         >
 
                         <div
                             id="previewPlaceholder{{ $index }}"
-                            class="{{ $existingImage ? 'hidden' : '' }} text-center text-gray-400 px-3"
+                            class="{{ $existingImage ? 'hidden' : '' }} text-center text-gray-400 px-3 pointer-events-none"
                         >
                             <i
                                 class="fa-solid fa-image text-2xl"
@@ -228,8 +230,19 @@
                             <p class="text-xs mt-2">
                                 No photo
                             </p>
+
+                            <p class="text-[11px] font-semibold text-[#9d7a54] mt-1">
+                                Click or tap to choose
+                            </p>
                         </div>
-                    </div>
+
+                        <span
+                            class="absolute right-2 bottom-2 inline-flex items-center gap-1.5 rounded-lg bg-[#3a3942]/90 px-2.5 py-1.5 text-[10px] font-semibold text-white opacity-80 transition group-hover:opacity-100 pointer-events-none"
+                        >
+                            <i class="fa-solid fa-camera"></i>
+                            {{ $existingImage ? 'Change' : 'Choose' }}
+                        </span>
+                    </label>
 
                     <input
                         type="file"

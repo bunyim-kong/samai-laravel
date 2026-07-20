@@ -42,6 +42,60 @@
         .admin-sidebar::-webkit-scrollbar {
             display: none;
         }
+
+        @media (max-width: 767px) {
+            .admin-responsive-table,
+            .admin-responsive-table tbody {
+                display: block;
+                width: 100%;
+            }
+
+            .admin-responsive-table thead {
+                display: none;
+            }
+
+            .admin-responsive-table tbody tr {
+                display: block;
+                padding: 1rem;
+            }
+
+            .admin-responsive-table tbody td {
+                display: grid;
+                grid-template-columns: minmax(7rem, 40%) minmax(0, 1fr);
+                align-items: start;
+                gap: 0.75rem;
+                padding: 0.5rem 0;
+                text-align: right;
+                overflow-wrap: anywhere;
+            }
+
+            .admin-responsive-table tbody td:first-child {
+                display: block;
+                padding-top: 0;
+                padding-bottom: 0.875rem;
+                text-align: left;
+            }
+
+            .admin-responsive-table tbody td[data-label]::before {
+                content: attr(data-label);
+                color: #6b7280;
+                font-size: 0.6875rem;
+                font-weight: 600;
+                letter-spacing: 0.05em;
+                line-height: 1.25rem;
+                text-align: left;
+                text-transform: uppercase;
+            }
+
+            .admin-responsive-table tbody td[data-actions] {
+                align-items: center;
+                padding-top: 0.875rem;
+            }
+
+            .admin-responsive-table tbody td[data-actions] > div {
+                justify-content: flex-end;
+            }
+        }
     </style>
 
     @stack('styles')

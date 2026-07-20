@@ -34,8 +34,8 @@
             </p>
         </div>
     @else
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[850px]">
+        <div class="overflow-hidden">
+            <table class="admin-responsive-table w-full">
                 <thead class="bg-[#faf8f5]">
                     <tr class="text-left text-xs uppercase tracking-wide text-gray-500">
                         <th class="px-6 py-4 font-semibold">Name</th>
@@ -57,7 +57,10 @@
                                 </p>
                             </td>
 
-                            <td class="px-6 py-4 text-sm text-gray-600">
+                            <td
+                                data-label="Map Center"
+                                class="px-6 py-4 text-sm text-gray-600"
+                            >
                                 @if ($countrySide->center_lat !== null && $countrySide->center_lng !== null)
                                     {{ $countrySide->center_lat }},
                                     {{ $countrySide->center_lng }}
@@ -66,11 +69,17 @@
                                 @endif
                             </td>
 
-                            <td class="px-6 py-4 text-sm text-gray-600">
+                            <td
+                                data-label="Zoom"
+                                class="px-6 py-4 text-sm text-gray-600"
+                            >
                                 {{ $countrySide->zoom }}
                             </td>
 
-                            <td class="px-6 py-4 text-sm text-gray-600">
+                            <td
+                                data-label="Position"
+                                class="px-6 py-4 text-sm text-gray-600"
+                            >
                                 @if ($countrySide->position_top !== null && $countrySide->position_left !== null)
                                     Top: {{ $countrySide->position_top }}%
                                     <br>
@@ -80,13 +89,17 @@
                                 @endif
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td data-label="Areas" class="px-6 py-4">
                                 <span class="inline-flex min-w-9 h-9 px-3 items-center justify-center rounded-lg bg-[#f1e7dc] text-[#765738] font-bold text-sm">
                                     {{ $countrySide->areas_count }}
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4">
+                            <td
+                                data-label="Actions"
+                                data-actions
+                                class="px-6 py-4"
+                            >
                                 <div class="flex items-center justify-end gap-2">
                                     <a
                                         href="{{ route('admin.country-sides.show', $countrySide) }}"
