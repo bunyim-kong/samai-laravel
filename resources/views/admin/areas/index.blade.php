@@ -1,11 +1,6 @@
 @extends('layouts.admin')
 
 @section('title', 'Areas - Samai Admin')
-@section('page-title', 'Areas')
-@section(
-    'page-description',
-    'Manage venues and map locations'
-)
 
 @section('content')
 <div

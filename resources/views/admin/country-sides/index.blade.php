@@ -1,8 +1,6 @@
 @extends('layouts.admin')
 
 @section('title', 'Country Sides - Samai Admin')
-@section('page-title', 'Country Sides')
-@section('page-description', 'Manage provinces shown on the Cambodia map')
 
 @section('content')
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
