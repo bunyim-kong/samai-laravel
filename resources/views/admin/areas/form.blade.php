@@ -236,12 +236,6 @@
                             </p>
                         </div>
 
-                        <span
-                            class="absolute right-2 bottom-2 inline-flex items-center gap-1.5 rounded-lg bg-[#3a3942]/90 px-2.5 py-1.5 text-[10px] font-semibold text-white opacity-80 transition group-hover:opacity-100 pointer-events-none"
-                        >
-                            <i class="fa-solid fa-camera"></i>
-                            {{ $existingImage ? 'Change' : 'Choose' }}
-                        </span>
                     </label>
 
                     <input
