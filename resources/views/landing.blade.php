@@ -145,7 +145,7 @@
             </a>
 
             <a
-                href="{{ route('landing') }}"
+                href="{{ route('map.all') }}"
                 class="text-[#4a2e10] hover:text-white transition-colors duration-200"
             >
                 Samai Rum Map
@@ -196,7 +196,7 @@
 
             <li>
                 <a
-                    href="{{ route('landing') }}"
+                    href="{{ route('map.all') }}"
                     class="block text-[#4a2e10] font-semibold py-1"
                 >
                     Samai Rum Map
@@ -645,6 +645,10 @@
             closeVenueCard();
         }
     });
+
+    if (@json(request()->routeIs('map.all'))) {
+        openMapModal('all-locations');
+    }
 
     const burger = document.getElementById('burger');
     const mobileMenu = document.getElementById('mobileMenu');

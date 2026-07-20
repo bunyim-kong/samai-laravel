@@ -2,31 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Area;
 use App\Models\CountrySide;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 class MapController extends Controller
 {
-    public function all(): View
-    {
-        $areas = Area::query()
-            ->whereNotNull('lat')
-            ->whereNotNull('lng')
-            ->with('images')
-            ->orderBy('title')
-            ->get();
-
-        return view('interactive-map', [
-            'areas' => $areas,
-            'mapTitle' => 'Samai Rum',
-            'initialMapCenter' => [12.5657, 104.9910],
-            'initialMapZoom' => 7,
-            'showAllMarkers' => true,
-        ]);
-    }
-
     public function show(CountrySide $countrySide): View
     {
         $countrySide->load([

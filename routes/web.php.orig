@@ -16,14 +16,6 @@ Route::get('/', [HomeController::class, 'welcome'])
 Route::get('/landing', [HomeController::class, 'landing'])
     ->name('landing');
 
-Route::get('/rum-map', [HomeController::class, 'landing'])
-    ->name('map.all');
-
-Route::get(
-    '/interactive-map/all-locations',
-    [MapController::class, 'all']
-)->name('map.all-frame');
-
 Route::get(
     '/interactive-map/{countrySide}',
     [MapController::class, 'show']

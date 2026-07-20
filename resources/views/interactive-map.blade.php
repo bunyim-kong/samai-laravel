@@ -8,7 +8,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>{{ $countrySide->name }} Map</title>
+    <title>{{ $mapTitle ?? (($countrySide ?? null)?->name ?? 'Samai Rum') }} Map</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -274,7 +274,10 @@
 <body>
 
 @php
-    $markers = $countrySide->areas
+    $countrySide = $countrySide ?? null;
+    $mapAreas = $areas ?? $countrySide?->areas ?? collect();
+
+    $markers = $mapAreas
         ->filter(function ($area) {
             return $area->lat !== null && $area->lng !== null;
         })
@@ -290,12 +293,12 @@
         ->values()
         ->all();
 
-    $mapCenter = [
-        (float) ($countrySide->center_lat ?? 11.5564),
-        (float) ($countrySide->center_lng ?? 104.9282),
+    $mapCenter = $initialMapCenter ?? [
+        (float) ($countrySide?->center_lat ?? 11.5564),
+        (float) ($countrySide?->center_lng ?? 104.9282),
     ];
 
-    $mapZoom = (int) ($countrySide->zoom ?? 10);
+    $mapZoom = (int) ($initialMapZoom ?? $countrySide?->zoom ?? 10);
 @endphp
 
 <div class="map-wrapper">
@@ -354,6 +357,11 @@
         markers: @json($markers)
     };
 
+    const showAllMarkers = @json($showAllMarkers ?? false);
+    const areaUrlTemplate = @json(
+        route('areas.show', ['area' => '__AREA__'])
+    );
+
     const map = L.map('map', {
         zoomControl: false,
         attributionControl: false
@@ -407,6 +415,14 @@
         });
 
         marker.on('click', function () {
+            if (window.parent === window) {
+                window.location.href = areaUrlTemplate.replace(
+                    '__AREA__',
+                    encodeURIComponent(item.id)
+                );
+                return;
+            }
+
             window.parent.postMessage({
                 type: 'show_card',
                 area_id: item.id
@@ -434,7 +450,8 @@
         const showLabels = zoom >= labelZoom;
 
         markerItems.forEach(function (item) {
-            const shouldShowMarker = !hasRecommendedMarkers ||
+            const shouldShowMarker = showAllMarkers ||
+                !hasRecommendedMarkers ||
                 item.isRecommended ||
                 showRegularMarkers;
 
