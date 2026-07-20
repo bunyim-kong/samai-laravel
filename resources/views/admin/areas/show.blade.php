@@ -148,11 +148,21 @@
 
             <div>
                 <p class="text-gray-500">
-                    Phone
+                    Phone 1
                 </p>
 
                 <p class="font-semibold mt-1">
                     {{ $area->phone ?: '—' }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-gray-500">
+                    Phone 2
+                </p>
+
+                <p class="font-semibold mt-1">
+                    {{ $area->secondary_phone ?: '—' }}
                 </p>
             </div>
 

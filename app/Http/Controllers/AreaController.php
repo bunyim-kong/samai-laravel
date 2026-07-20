@@ -51,6 +51,7 @@ class AreaController extends Controller
             'description' => $area->description,
             'serves' => $area->serves,
             'phone' => $area->phone,
+            'secondary_phone' => $area->secondary_phone,
             'email' => $area->email,
             'facebook' => $area->facebook,
             'instagram' => $area->instagram,
