@@ -100,10 +100,10 @@
         }
 
         .pin-marker.is-recommended {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             background: linear-gradient(135deg, #d9b46f 0%, #a97835 100%);
-            border: 3px solid #ffffff;
+            border: 2px solid #ffffff;
             box-shadow:
                 -3px 3px 9px rgba(0, 0, 0, .4),
                 0 0 0 5px rgba(194, 160, 109, .28),
@@ -113,8 +113,8 @@
         .pin-marker.is-recommended::after {
             content: '';
             position: absolute;
-            width: 14px;
-            height: 14px;
+            width: 10px;
+            height: 10px;
             top: 50%;
             left: 50%;
             background: #ffffff;
@@ -377,13 +377,13 @@
             html: '<div class="pin-marker' +
                 (isRecommended ? ' is-recommended' : '') +
                 '"></div>',
-            iconSize: isRecommended ? [32, 32] : [24, 24],
-            iconAnchor: isRecommended ? [16, 32] : [12, 24],
-            popupAnchor: [0, isRecommended ? -28 : -20]
+            iconSize: [24, 24],
+            iconAnchor: [12, 24],
+            popupAnchor: [0, -20]
         });
     }
 
-    const labelZoom = 12;
+    const labelZoom = 15;
     const regularMarkerZoom = 13;
     const hasRecommendedMarkers = mapData.markers.some(function (item) {
         return item.is_recommended;

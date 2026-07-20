@@ -443,9 +443,15 @@
     .venue-slider {
         display: flex;
         width: 100%;
-        overflow-x: hidden;
+        overflow-x: auto;
         scroll-behavior: smooth;
         scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .venue-slider::-webkit-scrollbar {
+        display: none;
     }
 
     .venue-slide {

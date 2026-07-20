@@ -532,23 +532,60 @@
             return;
         }
 
+        const slides = slider.querySelectorAll('.venue-slide');
+        let touchStartX = 0;
+        let touchStartIndex = 0;
+
+        function currentSlideIndex() {
+            return Math.round(slider.scrollLeft / slider.clientWidth);
+        }
+
+        function goToSlide(index) {
+            slider.scrollTo({
+                left: index * slider.clientWidth,
+                behavior: 'smooth'
+            });
+        }
+
         if (nextButton) {
             nextButton.addEventListener('click', function () {
-                slider.scrollBy({
-                    left: slider.clientWidth,
-                    behavior: 'smooth'
-                });
+                goToSlide(
+                    (currentSlideIndex() + 1) % slides.length
+                );
             });
         }
 
         if (previousButton) {
             previousButton.addEventListener('click', function () {
-                slider.scrollBy({
-                    left: -slider.clientWidth,
-                    behavior: 'smooth'
-                });
+                goToSlide(
+                    (currentSlideIndex() - 1 + slides.length)
+                        % slides.length
+                );
             });
         }
+
+        slider.addEventListener('touchstart', function (event) {
+            touchStartX = event.touches[0].clientX;
+            touchStartIndex = currentSlideIndex();
+        }, { passive: true });
+
+        slider.addEventListener('touchend', function (event) {
+            const distance = event.changedTouches[0].clientX
+                - touchStartX;
+
+            if (Math.abs(distance) < 40) {
+                return;
+            }
+
+            if (
+                distance < 0
+                && touchStartIndex === slides.length - 1
+            ) {
+                goToSlide(0);
+            } else if (distance > 0 && touchStartIndex === 0) {
+                goToSlide(slides.length - 1);
+            }
+        }, { passive: true });
     }
 
     cardContent.addEventListener('click', function (event) {
