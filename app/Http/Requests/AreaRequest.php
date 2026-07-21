@@ -97,6 +97,12 @@ class AreaRequest extends FormRequest
                 'max:50',
             ],
 
+            'secondary_phone' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+
             'email' => [
                 'nullable',
                 'email',

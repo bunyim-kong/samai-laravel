@@ -249,7 +249,11 @@
             </section>
         @endif
 
-        @if ($area->phone || $area->email)
+        @if (
+            $area->phone ||
+            $area->secondary_phone ||
+            $area->email
+        )
             <section class="venue-section">
                 <h3 class="venue-section-title">
                     Contact
@@ -258,11 +262,21 @@
                 <div class="venue-contact-list">
                     @if ($area->phone)
                         <a
-                            href="tel:{{ preg_replace('/\s+/', '', $area->phone) }}"
+                            href="tel:{{ preg_replace('/[^0-9+]/', '', $area->phone) }}"
                             class="venue-contact-item"
                         >
 
                             <span>{{ $area->phone }}</span>
+                        </a>
+                    @endif
+
+                    @if ($area->secondary_phone)
+                        <a
+                            href="tel:{{ preg_replace('/[^0-9+]/', '', $area->secondary_phone) }}"
+                            class="venue-contact-item"
+                        >
+
+                            <span>{{ $area->secondary_phone }}</span>
                         </a>
                     @endif
 

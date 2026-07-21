@@ -24,6 +24,7 @@ class Area extends Model
         'description',
         'serves',
         'phone',
+        'secondary_phone',
         'email',
         'facebook',
         'instagram',

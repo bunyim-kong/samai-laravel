@@ -380,7 +380,7 @@
             for="phone"
             class="block text-sm font-semibold mb-2"
         >
-            Phone
+            Phone 1
         </label>
 
         <input
@@ -392,6 +392,35 @@
         >
 
         @error('phone')
+            <p class="text-sm text-red-600 mt-2">
+                {{ $message }}
+            </p>
+        @enderror
+    </div>
+
+    <div>
+        <label
+            for="secondary_phone"
+            class="block text-sm font-semibold mb-2"
+        >
+            Phone 2
+            <span class="font-normal text-gray-400">
+                (optional)
+            </span>
+        </label>
+
+        <input
+            type="text"
+            id="secondary_phone"
+            name="secondary_phone"
+            value="{{ old(
+                'secondary_phone',
+                $area->secondary_phone ?? ''
+            ) }}"
+            class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
+        >
+
+        @error('secondary_phone')
             <p class="text-sm text-red-600 mt-2">
                 {{ $message }}
             </p>
