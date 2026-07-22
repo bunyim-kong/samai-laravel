@@ -61,6 +61,11 @@ class CountrySideRequest extends FormRequest
                 'numeric',
                 'between:0,100',
             ],
+
+            'label_position' => [
+                'required',
+                Rule::in(['top', 'right', 'bottom', 'left']),
+            ],
         ];
     }
 }

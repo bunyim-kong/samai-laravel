@@ -59,6 +59,13 @@
                     Left: {{ $countrySide->position_left ?? '—' }}%
                 </p>
             </div>
+
+            <div>
+                <p class="text-gray-500">Label Position</p>
+                <p class="font-semibold mt-1">
+                    {{ ucfirst($countrySide->label_position) }} of marker
+                </p>
+            </div>
         </div>
     </div>
 

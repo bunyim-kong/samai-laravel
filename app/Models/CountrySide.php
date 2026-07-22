@@ -15,6 +15,7 @@ class CountrySide extends Model
         'zoom',
         'position_top',
         'position_left',
+        'label_position',
     ];
 
     protected $casts = [

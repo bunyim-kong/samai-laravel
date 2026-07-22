@@ -27,6 +27,7 @@ class CountrySideSeeder extends Seeder
                 'zoom' => 12,
                 'position_top' => 44,
                 'position_left' => 16,
+                'label_position' => 'bottom',
             ],
             [
                 'name' => 'Phnom Penh',
@@ -63,6 +64,7 @@ class CountrySideSeeder extends Seeder
                 'zoom' => 12,
                 'position_top' => 96,
                 'position_left' => 24,
+                'label_position' => 'bottom',
             ],
         ];
 
