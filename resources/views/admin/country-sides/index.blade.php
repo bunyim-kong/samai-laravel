@@ -84,6 +84,8 @@
                                     Top: {{ $countrySide->position_top }}%
                                     <br>
                                     Left: {{ $countrySide->position_left }}%
+                                    <br>
+                                    Label: {{ ucfirst($countrySide->label_position) }}
                                 @else
                                     <span class="text-gray-400">Not provided</span>
                                 @endif

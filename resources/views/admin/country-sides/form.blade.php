@@ -149,4 +149,34 @@
             <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
         @enderror
     </div>
+
+    <div class="lg:col-span-2">
+        <label for="label_position" class="block text-sm font-semibold mb-2">
+            Label Position
+        </label>
+
+        <select
+            id="label_position"
+            name="label_position"
+            class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e] bg-white"
+            required
+        >
+            @foreach (['top', 'right', 'bottom', 'left'] as $position)
+                <option
+                    value="{{ $position }}"
+                    @selected(old('label_position', $countrySide->label_position ?? 'top') === $position)
+                >
+                    {{ ucfirst($position) }} of marker
+                </option>
+            @endforeach
+        </select>
+
+        <p class="text-xs text-gray-500 mt-2">
+            Choose where the province name appears around its map marker.
+        </p>
+
+        @error('label_position')
+            <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
+        @enderror
+    </div>
 </div>

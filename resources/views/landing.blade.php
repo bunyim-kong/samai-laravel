@@ -30,17 +30,31 @@
 
     .map-marker .province-label {
         position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
         pointer-events: none;
     }
 
-    .province-label-above {
+    .province-label-top {
+        left: 50%;
         bottom: calc(100% + 12px);
+        transform: translateX(-50%);
     }
 
-    .province-label-below {
+    .province-label-right {
+        top: 50%;
+        left: calc(100% + 12px);
+        transform: translateY(-50%);
+    }
+
+    .province-label-bottom {
+        left: 50%;
         top: calc(100% + 12px);
+        transform: translateX(-50%);
+    }
+
+    .province-label-left {
+        top: 50%;
+        right: calc(100% + 12px);
+        transform: translateY(-50%);
     }
 
     @media (min-width: 768px) {
@@ -248,6 +262,14 @@
                 >
 
                 @foreach ($countrySides as $countrySide)
+                    @php
+                        $labelPosition = in_array(
+                            $countrySide->label_position,
+                            ['top', 'right', 'bottom', 'left'],
+                            true
+                        ) ? $countrySide->label_position : 'top';
+                    @endphp
+
                     <div
                         class="map-marker z-20"
                         style="
@@ -257,7 +279,7 @@
                     >
                         @if ($countrySide->slug === 'phnom-penh')
                             <span
-                                class="province-label province-label-above text-sm sm:text-2xl md:text-3xl"
+                                class="province-label province-label-{{ $labelPosition }} text-sm sm:text-2xl md:text-3xl"
                             >
                                 {{ $countrySide->name }}
                             </span>
@@ -274,35 +296,19 @@
                                     class="w-full h-full object-contain pointer-events-none"
                                 >
                             </button>
-                        @elseif (
-                            $countrySide->slug === 'battambang' ||
-                            $countrySide->slug === 'sihanoukville'
-                        )
-                            <button
-                                type="button"
-                                class="map-dot map-dot-pulse block w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-[#c2a06d] border-2 border-white/60 cursor-pointer hover:scale-120 hover:bg-white transition-all duration-200"
-                                data-slug="{{ $countrySide->slug }}"
-                                aria-label="Open {{ $countrySide->name }} map"
-                            ></button>
-
-                            <span
-                                class="province-label province-label-below text-xs sm:text-xl md:text-2xl"
-                            >
-                                {{ $countrySide->name }}
-                            </span>
                         @else
-                            <span
-                                class="province-label province-label-above text-xs sm:text-xl md:text-2xl"
-                            >
-                                {{ $countrySide->name }}
-                            </span>
-
                             <button
                                 type="button"
                                 class="map-dot map-dot-pulse block w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-[#c2a06d] border-2 border-white/60 cursor-pointer hover:scale-120 hover:bg-white transition-all duration-200"
                                 data-slug="{{ $countrySide->slug }}"
                                 aria-label="Open {{ $countrySide->name }} map"
                             ></button>
+
+                            <span
+                                class="province-label province-label-{{ $labelPosition }} text-xs sm:text-xl md:text-2xl"
+                            >
+                                {{ $countrySide->name }}
+                            </span>
                         @endif
                     </div>
                 @endforeach
