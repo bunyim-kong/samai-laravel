@@ -18,6 +18,7 @@ class CountrySideSeeder extends Seeder
                 'zoom' => 12,
                 'position_top' => 32,
                 'position_left' => 30,
+                'label_position' => 'top',
             ],
             [
                 'name' => 'Battambang',
@@ -37,6 +38,7 @@ class CountrySideSeeder extends Seeder
                 'zoom' => 12,
                 'position_top' => 61,
                 'position_left' => 49,
+                'label_position' => 'top',
             ],
             [
                 'name' => 'Koh Rong',
@@ -46,6 +48,7 @@ class CountrySideSeeder extends Seeder
                 'zoom' => 12,
                 'position_top' => 82,
                 'position_left' => 15,
+                'label_position' => 'top',
             ],
             [
                 'name' => 'Kampot',
@@ -53,8 +56,9 @@ class CountrySideSeeder extends Seeder
                 'center_lat' => 10.6104,
                 'center_lng' => 104.1814,
                 'zoom' => 12,
-                'position_top' => 91,
+                'position_top' => 93,
                 'position_left' => 38,
+                'label_position' => 'top',
             ],
             [
                 'name' => 'Sihanoukville',
