@@ -359,6 +359,8 @@
     const mapIframe = document.getElementById('mapIframe');
     const detailContainer = document.getElementById('detailContainer');
     const cardContent = document.getElementById('cardContent');
+    const landingUrl = @json(route('landing'));
+    const isAllMapRoute = @json(request()->routeIs('map.all'));
 
     const mapUrlTemplate = @json(
         route('map.show', [
@@ -526,6 +528,10 @@
             mapIframe.src = '';
             resetVenueCard();
             closeMapButton.classList.remove('hidden');
+
+            if (isAllMapRoute) {
+                window.location.replace(landingUrl);
+            }
         }, 300);
     }
 
@@ -652,7 +658,7 @@
         }
     });
 
-    if (@json(request()->routeIs('map.all'))) {
+    if (isAllMapRoute) {
         openMapModal('all-locations');
     }
 

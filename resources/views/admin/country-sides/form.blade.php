@@ -43,7 +43,7 @@
         @enderror
     </div>
 
-    <div>
+    <!-- <div>
         <label for="center_lat" class="block text-sm font-semibold mb-2">
             Center Latitude
         </label>
@@ -81,7 +81,7 @@
         @error('center_lng')
             <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
         @enderror
-    </div>
+    </div> -->
 
     <div>
         <label for="zoom" class="block text-sm font-semibold mb-2">
