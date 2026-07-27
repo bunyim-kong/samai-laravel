@@ -44,46 +44,6 @@
     </div>
 
     <div>
-        <label for="center_lat" class="block text-sm font-semibold mb-2">
-            Center Latitude
-        </label>
-
-        <input
-            type="number"
-            step="0.0000001"
-            id="center_lat"
-            name="center_lat"
-            value="{{ old('center_lat', $countrySide->center_lat ?? '') }}"
-            class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
-            placeholder="11.5564000"
-        >
-
-        @error('center_lat')
-            <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
-        @enderror
-    </div>
-
-    <div>
-        <label for="center_lng" class="block text-sm font-semibold mb-2">
-            Center Longitude
-        </label>
-
-        <input
-            type="number"
-            step="0.0000001"
-            id="center_lng"
-            name="center_lng"
-            value="{{ old('center_lng', $countrySide->center_lng ?? '') }}"
-            class="w-full rounded-xl border border-[#d9d1c8] px-4 py-3 outline-none focus:border-[#b7936e]"
-            placeholder="104.9282000"
-        >
-
-        @error('center_lng')
-            <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
-        @enderror
-    </div>
-
-    <div>
         <label for="zoom" class="block text-sm font-semibold mb-2">
             Zoom Level
         </label>
